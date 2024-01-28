@@ -2,7 +2,7 @@
 All projects during my time @CAU Kiel
 
 Semester 1: 
-- Econometrics (PC Tutorial home assignement)
+- Econometrics 1 (PC Tutorial home assignement)
   https://timeseriesreasoning.com/
-- Statistics (PC Tutorial home assignement)
-- Mathematical Finance (no code)
+- Statistics 1 (PC Tutorial home assignement)
+- Mathematical Finance (no coding so far)
