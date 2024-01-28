@@ -18,8 +18,6 @@ output:
 ```{r}
 #Example
 
-# Test --> only tring it out
-
 #Code here
 ```
 - You are not allowed to use any additional R packages (this means packages that you have to install additionally to those already installed by default). 
@@ -33,7 +31,7 @@ output:
 
 !!! Enter your group name and stu-numbers here !!!
 
-1. First name laste name, stuXXXXX 
+1. Josef Fella, stu245231
 2. First name laste name, stuXXXXX 
 3. First name laste name, stuXXXXX 
 4. First name laste name, stuXXXXX 
@@ -71,7 +69,49 @@ Last,
 Make sure your function fulfills all needed conditions by testing a few variations!
 
 ```{r}
-#Write your function here
+
+password_generator <- function(length, special) {
+  if (missing(length) || !is.numeric(length) || length < 4) {
+    return("Number of symbols must be a positive integer and password must be at least of length 4!")
+  }
+
+  letters <- strsplit("abcdefghijklmnopqrstuvwxyz", NULL)[[1]]
+  letters_upper <- strsplit("ABCDEFGHIJKLMNOPQRSTUVWXYZ", NULL)[[1]]
+  numbers <- strsplit("0123456789", NULL)[[1]]
+  specials <- strsplit("$%&/()", NULL)[[1]]
+
+  lst <- c(letters, letters_upper, numbers)
+  if (special) {
+    lst <- c(lst, specials)
+  }
+
+  output <- c(
+    sample(letters, 1),
+    sample(letters_upper, 1),
+    sample(numbers, 1)
+  )
+
+  if (special) {
+    output <- c(output, sample(specials, 1))
+  }
+
+  while (length(output) < length) {
+    random_element_selector <- sample(lst, 1)
+    output <- c(output, sample(random_element_selector, 1))
+  }
+
+  final_password <- paste(sample(output), collapse = "")
+
+  if (nchar(final_password) < 6) {
+    return(paste("Weak password!", final_password))
+  } else if (nchar(final_password) >= 6 && nchar(final_password) < 10) {
+    return(paste("Moderate password!", final_password))
+  } else {
+    return(paste("Strong password!", final_password))
+  }
+}
+
+
 ```
 
 #1. b) Test your function here for
@@ -80,27 +120,27 @@ Make sure your function fulfills all needed conditions by testing a few variatio
 
 length = 7
 special = T
-# your function executed here
+password_generator(length, special)
 
 
 length = 3
 special = T
-# your function executed here
+password_generator(length, special)
 
 
 length = 4.5
 special = T
-# your function executed here
+password_generator(length, special)
 
 
 length = 5
 special = F
-# your function executed here
+password_generator(length, special)
 
 
 length = 50
 special = T
-# your function executed here
+password_generator(length, special)
 
 ```
 
@@ -112,14 +152,77 @@ In this exercise you need to demonstrate that if a random variable $X$ is ${\Gam
 To this end, write a function that samples and returns $N$ observations from the ${\Gamma}$ distribution with with shape parameter $a$ and scale parameter $b$. The function's input shall be $a$, $b$ and N.
 
 ```{r}
+# For comparability
+set.seed(28)
 
+# Function to get gamma sample
+get_gamma_sample <- function(alpha, beta, N) {
+  sample <- rgamma(N, shape = alpha, scale = beta)
+  return(sample)
+}
+
+# Test window
+alpha_shape <- 1
+beta_scale <- 1
+N_size <- 100
+
+sample1 <- rgamma(N_size, shape = alpha_shape, scale = beta_scale)
+sample <- get_gamma_sample(alpha_shape, beta_scale, N_size)
+
+# Parameters
+alpha_shape <- 100000
+beta_scale <- 1
+N_size <- 10000000
+
+# Get gamma moments
+gamma_mean <- mean(get_gamma_sample(alpha_shape, beta_scale, N_size))
+gamma_var <- var(get_gamma_sample(alpha_shape, beta_scale, N_size))
+
+# Get normal moments of gamma sample
+normal_mean <- alpha_shape * beta_scale
+normal_var <- alpha_shape * (beta_scale^2)
+
+# Generating the limiting normal distribution
+normal_sample <- rnorm(N_size, mean = normal_mean, sd = sqrt(normal_var))
+hist(normal_sample, breaks = "scott")
+
+# Output results
+cat("Gamma Mean:", gamma_mean, "Normal Mean:", normal_mean, "\n")
+cat("Gamma Variance:", gamma_var, "Normal Variance:", normal_var, "\n")
 
 ```
 
 Plot the resulting observations from the ${\Gamma}$ distribution using histograms with Scott breaks for $a$ = c(1, 5, 10, 50, 100) and $b$ = 1, N = 5000 in a 3x2 plot window and add the respective limiting Normal density for comparison. Choose a meaningful title, label the axes and add a legend to your plot.
 
 ```{r}
+# Setting parameters
+alpha_values <- c(1, 5, 10, 50, 100)
+beta <- 1
+N <- 5000
+set.seed(28)
 
+# Setting up subplots with larger size and more elongated aspect ratio
+par(mfrow = c(3, 2), figsize = c(12, 30), mar = c(4, 4, 2, 2))
+
+# Creating plots
+for (i in 1:length(alpha_values)) {
+  
+  # Generate Gamma samples
+  gamma_samples <- get_gamma_sample(alpha_values[i], beta, N)
+  
+  # Plot Gamma distribution histogram
+  hist(gamma_samples, breaks = "scott", col = 'blue', main = paste("Gamma Distribution, Alpha =", alpha_values[i], ", Beta =", beta),
+       xlab = "Value", ylab = "Density", xlim = c(min(gamma_samples), max(gamma_samples)))
+  
+  # Plot the limiting Normal distribution
+  normal_mean <- alpha_values[i] * beta
+  normal_var <- alpha_values[i] * (beta^2)
+  normal_samples <- rnorm(N, mean = normal_mean, sd = sqrt(normal_var))
+  hist(normal_samples, breaks = "scott", col = 'red', add = TRUE, density = 10)
+  
+  # Add legend with adjusted cex value for better readability
+  legend("topright", legend = c('Gamma Distribution', 'Normal Distribution (Limit)'), fill = c('blue', 'red'), density = c(10, 0), cex = 0.8)
+}
 
 ```
 
@@ -129,6 +232,43 @@ Now assume that you observe $X_n \sim \Gamma(a,b)$ for $a = c(1, 5, 10, 50, 100)
 Hint: Remember that $X \overset{d}{\rightarrow} \mathcal{N} (ab,ab^2)$ for increasing values of $a$.
 
 ```{r}
+# Empirical work on Slutsky's theorem
 
+# Set parameters
+N_MCarlo <- 1000
+n <- 1000
+alpha_values <- c(1, 5, 10, 50, 100)
+beta <- 1
+mu <- 3.5
+sigma <- 7
+
+set.seed(28)
+
+# Set up subplots with larger size and elongated aspect ratio
+par(mfrow = c(3, 2), mar = c(4, 4, 2, 2), fig.width = 10, fig.height = 12)
+
+# Create plot
+for (i in 1:length(alpha_values)) {
+  # Generate sample
+  X_n <- get_gamma_sample(alpha_values[i], beta, N_MCarlo)
+  Y_n <- rnorm(N_MCarlo, mean = mu, sd = 4 * (sigma^2) * sqrt(n^-5))
+  sample <- X_n * Y_n
+
+  # Plot results
+  hist(sample, breaks = "scott", prob = TRUE, col = 'blue',
+       main = paste("Gamma * Normal, Alpha =", alpha_values[i], ", Beta =", beta),
+       xlab = "Value", ylab = "Density", xlim = c(min(sample), max(sample)))
+  
+  # Compute expected limiting distribution parameters
+  expected_mean <- alpha_values[i] * mu
+  expected_variance <- alpha_values[i] * (mu^2 + 16 * (sigma^4) * (n^-5))
+
+  # Overlay expected limiting distribution without additional libraries
+  x <- seq(expected_mean - 3 * sqrt(expected_variance), expected_mean + 3 * sqrt(expected_variance), length.out = 100)
+  pdf_values <- (1 / sqrt(2 * pi * expected_variance)) * exp(-0.5 * ((x - expected_mean) / sqrt(expected_variance))^2)
+  lines(x, pdf_values, col = 'red', lwd = 2)
+  
+  legend("topright", legend = c('Empirical', 'Limiting Distribution'), fill = c('blue', 'red'))
+}
 
 ```
