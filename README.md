@@ -6,5 +6,3 @@ Semester 1:
   https://timeseriesreasoning.com/
 - Statistics (PC Tutorial home assignement)
 - Mathematical Finance (no code)
-
-Currently: PC Home assignement Statisik 1 and Econometric Methods 1
