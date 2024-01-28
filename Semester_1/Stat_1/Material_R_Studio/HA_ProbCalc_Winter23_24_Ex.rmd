@@ -17,6 +17,9 @@ output:
 - Try to solve this home assignment and answer all questions in this file by filling the boxes below each exercise
 ```{r}
 #Example
+
+# Test --> only tring it out
+
 #Code here
 ```
 - You are not allowed to use any additional R packages (this means packages that you have to install additionally to those already installed by default). 
