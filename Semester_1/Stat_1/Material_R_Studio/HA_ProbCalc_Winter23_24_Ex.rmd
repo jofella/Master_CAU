@@ -71,7 +71,9 @@ Make sure your function fulfills all needed conditions by testing a few variatio
 ```{r}
 
 password_generator <- function(length, special) {
-  if (missing(length) || !is.numeric(length) || length < 4) {
+  is.wholenumber <- function(x, tol = .Machine$double.eps^0.5) abs(x - round(x)) < tol
+
+  if (missing(length) || !is.wholenumber(length) || length < 4) {
     return("Number of symbols must be a positive integer and password must be at least of length 4!")
   }
 
