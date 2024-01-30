@@ -71,22 +71,27 @@ Make sure your function fulfills all needed conditions by testing a few variatio
 ```{r}
 
 password_generator <- function(length, special) {
+  # funtion to detect integers --> is.number was errours
   is.wholenumber <- function(x, tol = .Machine$double.eps^0.5) abs(x - round(x)) < tol
-
+  
+  # 1.Check: For integer and length > 4
   if (missing(length) || !is.wholenumber(length) || length < 4) {
     return("Number of symbols must be a positive integer and password must be at least of length 4!")
   }
-
+  
+  # Lists with elements for password
   letters <- strsplit("abcdefghijklmnopqrstuvwxyz", NULL)[[1]]
   letters_upper <- strsplit("ABCDEFGHIJKLMNOPQRSTUVWXYZ", NULL)[[1]]
   numbers <- strsplit("0123456789", NULL)[[1]]
   specials <- strsplit("$%&/()", NULL)[[1]]
-
+  
+  # 2. Check: If specials included or not
   lst <- c(letters, letters_upper, numbers)
   if (special) {
     lst <- c(lst, specials)
   }
-
+  
+  # Creates an output vector and adds a random element from each list
   output <- c(
     sample(letters, 1),
     sample(letters_upper, 1),
@@ -96,14 +101,17 @@ password_generator <- function(length, special) {
   if (special) {
     output <- c(output, sample(specials, 1))
   }
-
+  
+  # Loop thu list until desired length is fulfilled
   while (length(output) < length) {
     random_element_selector <- sample(lst, 1)
     output <- c(output, sample(random_element_selector, 1))
   }
-
+  
+  # Setting up final password
   final_password <- paste(sample(output), collapse = "")
-
+  
+  # Output of the password and message for user
   if (nchar(final_password) < 6) {
     return(paste("Weak password!", final_password))
   } else if (nchar(final_password) >= 6 && nchar(final_password) < 10) {
@@ -113,12 +121,12 @@ password_generator <- function(length, special) {
   }
 }
 
-
 ```
 
 #1. b) Test your function here for
 
 ```{r}
+# Test of the function
 
 length = 7
 special = T
@@ -154,43 +162,45 @@ In this exercise you need to demonstrate that if a random variable $X$ is ${\Gam
 To this end, write a function that samples and returns $N$ observations from the ${\Gamma}$ distribution with with shape parameter $a$ and scale parameter $b$. The function's input shall be $a$, $b$ and N.
 
 ```{r}
-# For comparability
+# Setting fixed random seed
 set.seed(28)
 
-# Function to get gamma sample
-get_gamma_sample <- function(alpha, beta, N) {
-  sample <- rgamma(N, shape = alpha, scale = beta)
-  return(sample)
+# Function to get gamma sample (Inverse Transformation method)
+get_gamma_sample <- function(a, b, N) {
+  # Generate uniform random variables
+  u <- runif(N)
+  
+  # Calculate the scale parameter for qgamma
+  scale_param <- 1 / b
+  
+  # Use qgamma to get Gamma-distributed sample
+  gamma_sample <- qgamma(u, shape = a, scale = scale_param)
+  return(gamma_sample)
 }
 
-# Test window
-alpha_shape <- 1
-beta_scale <- 1
-N_size <- 100
+# Generate gamma-distributed samples for large alpha
+alpha_large <- 5
+beta <- 1
+N <- 1000
 
-sample1 <- rgamma(N_size, shape = alpha_shape, scale = beta_scale)
-sample <- get_gamma_sample(alpha_shape, beta_scale, N_size)
+gamma_samples_large_alpha <- get_gamma_sample(alpha_large, beta, N)
 
-# Parameters
-alpha_shape <- 100000
-beta_scale <- 1
-N_size <- 10000000
+# Plot histogram
+hist(gamma_samples_large_alpha, freq = FALSE, main = "Gamma vs Normal Distribution",
+     xlab = "Value", col = "lightblue", border = "black")
 
-# Get gamma moments
-gamma_mean <- mean(get_gamma_sample(alpha_shape, beta_scale, N_size))
-gamma_var <- var(get_gamma_sample(alpha_shape, beta_scale, N_size))
+# Add the theoretical normal distribution curve
+curve(dnorm(x, mean = alpha_large * beta, sd = sqrt(alpha_large * beta^2)), 
+      col = "red", lwd = 2, add = TRUE)
 
-# Get normal moments of gamma sample
-normal_mean <- alpha_shape * beta_scale
-normal_var <- alpha_shape * (beta_scale^2)
+# Add vertical lines for means
+abline(v = mean(gamma_samples_large_alpha), col = "blue", lty = 2, lwd = 2)
+abline(v = alpha_large * beta, col = "green", lty = 2, lwd = 2)
 
-# Generating the limiting normal distribution
-normal_sample <- rnorm(N_size, mean = normal_mean, sd = sqrt(normal_var))
-hist(normal_sample, breaks = "scott")
+# Add legend with smaller size
+legend("topright", legend = c("Gamma Dist", "Normal Dist", "Gamma Mean", "Normal Mean"),
+       col = c("lightblue", "red", "blue", "green"), lty = c(1, 1, 2, 2), lwd = c(1, 2, 2, 2), cex = 0.8)
 
-# Output results
-cat("Gamma Mean:", gamma_mean, "Normal Mean:", normal_mean, "\n")
-cat("Gamma Variance:", gamma_var, "Normal Variance:", normal_var, "\n")
 
 ```
 
@@ -223,7 +233,7 @@ for (i in 1:length(alpha_values)) {
   hist(normal_samples, breaks = "scott", col = 'red', add = TRUE, density = 10)
   
   # Add legend with adjusted cex value for better readability
-  legend("topright", legend = c('Gamma Distribution', 'Normal Distribution (Limit)'), fill = c('blue', 'red'), density = c(10, 0), cex = 0.8)
+  legend("topright", legend = c('Gamma Distribution', 'Normal Distribution (Limit)'), fill = c('blue', 'red'), cex = 0.8)
 }
 
 ```
