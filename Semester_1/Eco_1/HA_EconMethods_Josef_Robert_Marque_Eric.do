@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------
 
 Group Members:
-- 1) Marque , stu
+- 1) Marque Mollenhauer, stu227420
 - 2) Eric Kroll, stu
-- 3) Josef Fella, stu245231
+- 3) Josef Fella, !git stu245231
 - 4) Robert Hennings, stu236320
 
 ---------------------------------------------------------------------------*/
@@ -16,7 +16,7 @@ clear
 **** a)
 * Import and briefly describe the dataset:
 
-cd "/Users/Robert_Hennings/Dokumente/Uni/Master/3.Semester/Econometric Methods/Home Assignment/"
+cd "C:\Users\josef\Documents\GitHub\Master_CAU\Semester_1\Eco_1"
 use HA_smoking.dta
 
 * Get sense of data
@@ -51,6 +51,7 @@ est store linear_model
 /* Interpretation: Linear probability Model
 H0: measures at the work place banning smoking have no effect on becoming a smoker, βˆ1 is equal to 0
 H1: measures indeed have an effect, βˆ1 != 0
+
 - If we look purely on the p-value of 0.000 we would argue that its statistically significant, since its below the significance level of 0.05 and even 0.01. So we have statistical evidence to reject our H0 (less smoking with smoking ban).
 - On the other hand we the coefficient is -0.048052, so smoking measures in place at the work area decrease the predicted probability of being a smoker by 4.8052 %. In absolute terms this is a quiet small magnitude. Rendering the effect strength of the measures taken questionable.
 
@@ -65,6 +66,7 @@ H1: measures indeed have an effect, βˆ1 != 0
 * Given the coefficients:
 esttab linear_model
 /* Does probability of smoking increase or decrease?
+
 Observing the educational related variables inlcuded in the model one can see
 the following trend: 
 the higher the education of an individual the less likely or the smaller the chance
@@ -74,6 +76,7 @@ attended a college: 0.1556154 and finally college grads are least likely ending 
 as a smoker with: 0.0433244
 where the effect or absolute difference is biggest between attended college and
 the college grads, so finishing college is advised
+
 --> Model implies higher probability for hsfropouts than for graduates
 */
 
@@ -105,7 +108,7 @@ scalar colsome_value = 0
 scalar colgrad_value = 1
 
 * Calculate the linear prediction
-quiet regress smkban age agesq female hsdrop hsgrad colsome colgrad, vce(robust)
+quiet regress smoker smkban age agesq female hsdrop hsgrad colsome colgrad, vce(robust)
 generate linear_prediction = _b[_cons] + ///
 							_b[smkban] * smkban_value + ///
                             _b[age] * age_value + ///
@@ -121,16 +124,15 @@ margins, at(smkban=1 age=70 agesq=4900 female=1 hsdrop=0 hsgrad=0 colsome=0 colg
 * -.0132687
 
 
-
-
 /* Interpretation:
 - smoking measures in place at the work area decrease the predicted probability
 of being a smoker for this individual specified, by roughly 1.32 %
 
 Problems:
-- We only asume linear relationship of predictor and regressor
+- We only assume linear relationship of predictor and regressor
 - Especially the positvie coefficient of education may suggest a more complex relationship --> not considered here
-- Predicted probability isn't standardized -> Can yield values above 1 o below 0
+- Predicted probability isn't standardized -> Can yield values above 1 o below 0 
+
 */
 
 
@@ -148,7 +150,6 @@ probit smoker i.smkban age agesq female hsdrop hsgrad colsome colgrad, vce(oim)
 margins, dydx(i.smkban) post
 eststo probit_model
 * dy/dx: -.048124
-
 
 /* Effects statistically significant?
 H0: The APE is not relevant, it should be 0
@@ -180,13 +181,17 @@ Interpretation: the estimated average change in the probability of being a smoke
 * https://stackoverflow.com/questions/28043371/how-do-you-store-marginal-effects-using-margins-command-in-stata
 esttab linear_model logit_model probit_model, keep(1.smkban)
 
-* b)
+
+
+**** b) Use the probit model
+
 * i) male, 40 years old, college graduate.
 * First have a look at the filtered dataset
 browse if female == 0 & age == 40 & colgrad == 1
 
 * use the margins operator
-margins 1.smkban, at( age=40 agesq=1600 female=0 hsdrop=0 hsgrad=0 colsome=0 colgrad=1) post
+probit smoker i.smkban age agesq female hsdrop hsgrad colsome colgrad, vce(oim)
+margins 1.smkban, at(age=40 agesq=1600 female=0 hsdrop=0 hsgrad=0 colsome=0 colgrad=1) post
 eststo probit_i
 * .1468431
 
@@ -199,9 +204,10 @@ eststo probit_i
 
 * ii) female, 20 years old, high school dropout.
 * First have a look at the filtered dataset
-browse if female == 0 & age == 40 & colgrad == 1
+browse if female == 1 & age == 20 & hsdrop == 1
 
 * use the margins operator
+probit smoker i.smkban age agesq female hsdrop hsgrad colsome colgrad, vce(oim)
 margins 1.smkban, at(age=20 agesq=400 female=1 hsdrop=1 hsgrad=0 colsome=0 colgrad=0) post
 eststo probit_ii
 * .3034314
