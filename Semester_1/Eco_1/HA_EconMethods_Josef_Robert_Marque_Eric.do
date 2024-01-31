@@ -3,7 +3,7 @@
 Group Members:
 - 1) Marque Mollenhauer, stu227420
 - 2) Eric Kroll, stu243616
-- 3) Josef Fella, !git stu245231
+- 3) Josef Fella, stu245231
 - 4) Robert Hennings, stu236320
 - 5) Erics M8 
 
