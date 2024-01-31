@@ -2,9 +2,10 @@
 
 Group Members:
 - 1) Marque Mollenhauer, stu227420
-- 2) Eric Kroll, stu
+- 2) Eric Kroll, stu243616
 - 3) Josef Fella, !git stu245231
 - 4) Robert Hennings, stu236320
+- 5) Erics M8 
 
 ---------------------------------------------------------------------------*/
 clear
@@ -53,8 +54,7 @@ H0: measures at the work place banning smoking have no effect on becoming a smok
 H1: measures indeed have an effect, βˆ1 != 0
 
 - If we look purely on the p-value of 0.000 we would argue that its statistically significant, since its below the significance level of 0.05 and even 0.01. So we have statistical evidence to reject our H0 (less smoking with smoking ban).
-- On the other hand we the coefficient is -0.048052, so smoking measures in place at the work area decrease the predicted probability of being a smoker by 4.8052 %. In absolute terms this is a quiet small magnitude. Rendering the effect strength of the measures taken questionable.
-
+- On the other hand the coefficient is -0.048052, so smoking measures in place at the work area decrease the predicted probability of being a smoker by 4.8052 %. In absolute terms this is a quiet small magnitude. Rendering the effect strength of the measures taken questionable.
 
 --> Statistically relevant BUT practical importance will be dependent of the study and scale of variable involved.
 
@@ -67,7 +67,7 @@ H1: measures indeed have an effect, βˆ1 != 0
 esttab linear_model
 /* Does probability of smoking increase or decrease?
 
-Observing the educational related variables inlcuded in the model one can see
+Observing the educational related variables inlcuded in the model, one can see
 the following trend: 
 the higher the education of an individual the less likely or the smaller the chance
 that this individual is a smoker, but all estimated parameters are positive
@@ -120,19 +120,19 @@ generate linear_prediction = _b[_cons] + ///
                             _b[colgrad] * colgrad_value
 di linear_prediction
 * -0.01326874
+* Test out version with marggins what yields the same results
 margins, at(smkban=1 age=70 agesq=4900 female=1 hsdrop=0 hsgrad=0 colsome=0 colgrad=1)
 * -.0132687
 
 
 /* Interpretation:
 - smoking measures in place at the work area decrease the predicted probability
-of being a smoker for this individual specified, by roughly 1.32 %
+  of being a smoker for this individual specified, by roughly 1.32 %
 
 Problems:
 - We only assume linear relationship of predictor and regressor
-- Especially the positvie coefficient of education may suggest a more complex relationship --> not considered here
+- Especially the positvie coefficient of education may suggest a more complex relationship --> not     	considered here
 - Predicted probability isn't standardized -> Can yield values above 1 o below 0 
-
 */
 
 
@@ -141,7 +141,7 @@ Problems:
 **** a)
 
 *1) Linear Probability Model:
-* CHanging here the syntax changes nothing, only for better showing in comparison tab later
+* Changing here the syntax changes nothing, only for better showing in comparison tab later
 regress smoker i.smkban age agesq female hsdrop hsgrad colsome colgrad, vce(robust)
 eststo linear_model
 
@@ -178,10 +178,7 @@ Interpretation: the estimated average change in the probability of being a smoke
 */
 
 * Display a table with all three estimation results
-* https://stackoverflow.com/questions/28043371/how-do-you-store-marginal-effects-using-margins-command-in-stata
 esttab linear_model logit_model probit_model, keep(1.smkban)
-
-
 
 **** b) Use the probit model
 
@@ -224,5 +221,5 @@ esttab probit_i probit_ii
 /* Interpretation:
 - The side by side compariosn shows, that the average predicted probability of being a smoker
   is almsot doubled for the 20 year old women, who dropped out of highschool (30.34%)
-  comapred with the 40 year old man, who graduated from college
+  comapred with the 40 year old man, who graduated from college (14.68%)
 */
