@@ -1,11 +1,11 @@
 /*---------------------------------------------------------------------------
 
 Group Members:
-- 1) Marque Mollenhauer, stu227420
-- 2) Eric Kroll, stu243616
-- 3) Josef Fella, stu245231
-- 4) Robert Hennings, stu236320
-- 5) Ahsan Muhammad, stu243716
+- 1) Marque Mollenhauer, QE ,stu227420
+- 2) Eric Kroll, QE ,stu243616
+- 3) Josef Fella, QF ,stu245231
+- 4) Robert Hennings, QF ,stu236320
+- 5) Ahsan Muhammad, QF ,stu243716
 
 ---------------------------------------------------------------------------*/
 clear
