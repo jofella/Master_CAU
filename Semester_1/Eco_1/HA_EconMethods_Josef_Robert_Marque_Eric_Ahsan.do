@@ -180,46 +180,79 @@ Interpretation: the estimated average change in the probability of being a smoke
 * Display a table with all three estimation results
 esttab linear_model logit_model probit_model, keep(1.smkban)
 
-**** b) Use the probit model
-
+**** b)
+* Use the probit model
+* analytical approach following PC Tutorial 4) MLE, Slides P.4/11 Task c)
 * i) male, 40 years old, college graduate.
 * First have a look at the filtered dataset
 browse if female == 0 & age == 40 & colgrad == 1
 
+
+* smkban=0 -> Baseline
 * use the margins operator
-probit smoker i.smkban age agesq female hsdrop hsgrad colsome colgrad, vce(oim)
+quiet probit smoker i.smkban age agesq female hsdrop hsgrad colsome colgrad, vce(oim)
+margins 0.smkban, at(age=40 agesq=1600 female=0 hsdrop=0 hsgrad=0 colsome=0 colgrad=1) post
+* Save the estimated parameter for later use
+scalar probit_i_0 = e(b)[1,1]
+eststo probit_i_0_tab
+* 0.1867095
+
+* smkban=1 -> Compare
+quiet probit smoker i.smkban age agesq female hsdrop hsgrad colsome colgrad, vce(oim)
 margins 1.smkban, at(age=40 agesq=1600 female=0 hsdrop=0 hsgrad=0 colsome=0 colgrad=1) post
-eststo probit_i
-* .1468431
+scalar probit_i_1 = e(b)[1,1]
+eststo probit_i_1_tab
+* 0.1468431
 
-
-/* Interpretation:
-- the resulting y values should all be standardized to the range [0, 1]
-- the average predicted probability of being a smoker for this individual is about 14.68%
-*/
-
+* Effect strenth as difference
+disp probit_i_0 - probit_i_1
+* .03986644
+esttab probit_i_0_tab probit_i_1_tab
 
 * ii) female, 20 years old, high school dropout.
 * First have a look at the filtered dataset
 browse if female == 1 & age == 20 & hsdrop == 1
 
+* smkban=0 -> Baseline
 * use the margins operator
 probit smoker i.smkban age agesq female hsdrop hsgrad colsome colgrad, vce(oim)
+margins 0.smkban, at(age=20 agesq=400 female=1 hsdrop=1 hsgrad=0 colsome=0 colgrad=0) post
+* Save the estimated parameter for later use
+scalar probit_ii_0 = e(b)[1,1]
+eststo probit_ii_0_tab
+* .3614542
+
+* smkban=1 -> Compare
+probit smoker i.smkban age agesq female hsdrop hsgrad colsome colgrad, vce(oim)
 margins 1.smkban, at(age=20 agesq=400 female=1 hsdrop=1 hsgrad=0 colsome=0 colgrad=0) post
-eststo probit_ii
+scalar probit_ii_1 = e(b)[1,1]
+eststo probit_ii_1_tab
 * .3034314
 
-/* Interpretation:
-- the resulting y values should all be standardized to the range [0, 1]
-- the average predicted probability of being a smoker for this individual is about 30.34%
-*/
-
+* Effect strenth as difference
+disp probit_ii_0 - probit_ii_1
+* .05802279
+esttab probit_ii_0_tab probit_ii_1_tab
 
 * Direct Comparison
-esttab probit_i probit_ii
+esttab probit_i_0_tab probit_i_1_tab probit_ii_0_tab probit_ii_1_tab
 
-/* Interpretation:
-- The side by side compariosn shows, that the average predicted probability of being a smoker
-  is almsot doubled for the 20 year old women, who dropped out of highschool (30.34%)
-  comapred with the 40 year old man, who graduated from college (14.68%)
+
+// For Male, 40, College Graduate
+display "Predicted Probability of a male, 40 Years Old, College Graduate without Smoking Ban: " probit_i_0
+display "Predicted Probability of a male, 40 Years Old, College Graduate with Smoking Ban: " probit_i_1
+display "Effect of Smoking Ban on Smoking Probability for Males: " probit_i_0 - probit_i_1
+display "------------------------------------------------------------"
+/*
+Explanation:
+Among 40-year-old males who are college graduates, the probability of smoking in the workplace without any measures taken is 18.67%. However, if a smoking ban is implemented, this probability decreases to 14.68%. Consequently, the smoking ban results in a reduction of smoking probability by 3.9% within this specific demographic group.
+*/
+
+// For Female, 20, High School Dropout
+display "Predicted Probability of a female, 20 Years Old, High School Dropout without Smoking Ban: " probit_ii_0
+display "Predicted Probability of a female, 20 Years Old, High School Dropouts with Smoking Ban: " probit_ii_1
+display "Effect of Smoking Ban on Smoking Probability for Females: " probit_ii_0 - probit_ii_1
+/*
+Explanation:
+For 20-year-old females who are high school dropouts, the lprobability of smoking in the workplace without any measures taken is 36.14%. If a smoking ban is implemented, this probability decreases to 30.34%. Consequently, the smoking ban results in a reduction of smoking probability by 5.8% within this specific demographic group.
 */
