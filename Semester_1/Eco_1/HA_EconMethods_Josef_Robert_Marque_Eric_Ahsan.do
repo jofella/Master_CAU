@@ -5,7 +5,7 @@ Group Members:
 - 2) Eric Kroll, stu243616
 - 3) Josef Fella, stu245231
 - 4) Robert Hennings, stu236320
-- 5) Muhammad Ahsan, stu243716
+- 5) Ahsan Muhammad, stu243716
 
 ---------------------------------------------------------------------------*/
 clear
