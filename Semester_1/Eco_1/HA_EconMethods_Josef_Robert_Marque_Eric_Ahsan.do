@@ -17,7 +17,7 @@ clear
 **** a)
 * Import and briefly describe the dataset:
 
-cd "C:\Users\josef\Documents\GitHub\Master_CAU\Semester_1\Eco_1"
+cd "/Users/Robert_Hennings/Dokumente/Uni/Master/3.Semester/Econometric Methods/Home Assignment"
 use HA_smoking.dta
 
 * Get sense of data
