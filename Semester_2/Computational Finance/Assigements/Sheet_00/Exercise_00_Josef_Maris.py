@@ -35,92 +35,99 @@ print('x to the power of 1.5 is: ' + str(math.pow(x, 1.5)))
 # 3. Array initialization
 # In this section you will learn how to initialize Arrays and basic calculations on it.
 # Initialize X as an Array with place for ten floating point numbers using the empty-function from the numpy package
-X ???
-# now save in X the vector [9,8,7,6,5,4,3,2,1,0]
-X ???
+X = np.empty(10) # default is float
+# now save in X the vector [9,8,7,6,5,4,3,2,1,0]    
+X[:] = [9,8,7,6,5,4,3,2,1,0]
 # initialize Y as the following Array [0 1 2 3 4 5 6 7 8 9]
-Y ???
+Y = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 # transpose X
-???
+X = np.transpose(X)
 # calculate the scalarproduct of X and Y
-print('The scalarproduct of X and Y is: ' + str(???))
+print('The scalarproduct of X and Y is: ' + str(np.dot(X, Y)))
 # initialize Z as array of ones with size (1,5)
-Z ???
+Z = np.ones([1,5])
 # multiply Z by 3
-print(???)
+print(Z * 3)
 # initialize V as array of zeros with size (5,1)
-V ???
+V = np.zeros([5,1])
 print(V)
 # initialize R as the range from 8 to 24 (including 24) with a stepsize of 2
-R ???
+R = np.arange(8,26,2)
 # print the fourth entry of R
-print('The fourth entry of R is: ' + str(???))
+print('The fourth entry of R is: ' + str(R[4]))
 # initialize L as the linespace from -2.5 to 2.5 with 50 samples
-L ???
+L = np.linspace(-2.5, 2.5, 50)
 # print the 20th entry of L
-print('The 20th entry of L is: ' + str(???))
+print('The 20th entry of L is: ' + str(L[20]))
 
 # 4. Matrices
 # define the matrix consisting of 2*X, X+Y and Y^3 (use the numpy power-function)
-M ???
+M = np.array([[2*X], [X+Y], [np.power(Y,3)]])
 print(M)
 # create a matrix containing ones with size (10,3)
-O ???
+O = np.ones([10,3])
 # multiply M with O, use either the dot-function or the matmul-function from the numpy package
-print('The matrixproduct of M and O is: ' + str(???))
+print('The matrixproduct of M and O is: ' + str(np.dot(M, O)))
 # multiply M with Y
-print('The product of M and Y is: ' + str(???))
+print('The product of M and Y is: ' + str(M * Y))
 # create a 5x5 matrix filled with N(0,1)-distributed values
 # Hint: Check out the random-functions of numpy
-G ???
+G = np.random.normal(0,1,size=( 5,5))
 print(G)
 
 # accessing array-elements
 # complete the following statements
-print('The 5th element in the 5th row of G is: ' + str(???))
-print('The first row of G is: ' + str(???))
-print('The third column of G is: ' + str(???))
+print('The 5th element in the 5th row of G is: ' + str(G[4,4]))
+print('The first row of G is: ' + str(G[0,:]))
+print('The third column of G is: ' + str(G[:,2]))
 
 # 5. Branching
 # True-False Statements
 # Give a True statement for each operator using x and y: <, >=, ==, !=
-print(???)
-print(???)
-print(???)
-print(???)
+print(x < y)
+print(x >= y)
+print(x == y)
+print(x != y)
 
 # Write an if-else statement which compares z to x and y and prints one of the following messages
 z = 4
-???
+if x == y:
     print('z is equal to x')
-???
+elif z == y:
     print('z is equal to y')
-???
+else:
     print('z is not equal to x nor y')
 
 # 6. For-loop
 # Use a for-loop to calculate the sum of the first 50 even numbers (starting with 0)
 sum = 0
-???
+for i in range(0, 102, 2):
+    sum = sum + i    
 print('The sum of the first 50 even numbers is: ' + str(sum))
 
 
 # 7. Custom functions
 # define a function polynom which calculates the result of p^2+3p+2
-???
-
+def polynom(p):
+    pol_result  = p^2 + 3*p + 2
+    return pol_result
 print(polynom(5))
 
 
 # implement the function h(x,y) = (x/y, exp(x))
-???
-
+def h(x,y):
+    h_result = np.array([x/y, np.exp(x)])
+    return h_result
 print(h(1, 1))
 
 # 8. Importing data
 # load DAX data using the genfromtxt-function from numpy
 # we're only interested in the value and not the date, therefore only import the fifth column and skip the header
-dax = ???
+dax = np.genfromtxt('time_series_dax_2024',
+                    delimiter=',',
+                    usecols=4,
+                    skip_header=1)
+print(dax)
 
 # 9. Flip the data
 # since the timeseries is antichronological you need to flip it using the flip-function from numpy.
@@ -138,6 +145,15 @@ Part 2: C-Exercise 00
 ----------------------------------------------------------------"""
 
 def bond_value(V0, r, n, M, c):
-    
-    
-    return Vn
+    if r > 0 and V0 > 0:
+        if c == 1:
+            Vn = V0 * np.exp(r*n)
+            return Vn
+        elif c == 0:
+            Vn = V0 * np.power((1+r/M), (n*M)) 
+            return Vn
+    else:
+        print("Please check your input") 
+
+
+print(bond_value(1000, 0.05, 10, 4, 0))
