@@ -84,9 +84,9 @@ print('The third column of G is: ' + str(G[:,2]))
 # 5. Branching
 # True-False Statements
 # Give a True statement for each operator using x and y: <, >=, ==, !=
-print(x < y)
+print(y < x)
 print(x >= y)
-print(x == y)
+print(x == x and y == y)
 print(x != y)
 
 # Write an if-else statement which compares z to x and y and prints one of the following messages
@@ -123,20 +123,26 @@ print(h(1, 1))
 # 8. Importing data
 # load DAX data using the genfromtxt-function from numpy
 # we're only interested in the value and not the date, therefore only import the fifth column and skip the header
-dax = np.genfromtxt('time_series_dax_2024',
-                    delimiter=',',
+dax = np.genfromtxt(r'C:/Users/josef/Documents/GitHub/Master_CAU/Semester_2/Computational Finance/Assigements/Sheet_00/time_series_dax_2024.csv',
+                    delimiter=';',
                     usecols=4,
                     skip_header=1)
 print(dax)
 
 # 9. Flip the data
 # since the timeseries is antichronological you need to flip it using the flip-function from numpy.
-dax = ???
+dax = np.flipud(dax)
 
 # 10. Plotting
 # plot the DAX data and label the axis
-???
+plt.plot(dax)
 
+#Labeling plot
+plt.title('DAX Closing Prices from 1990-2024')
+plt.xlabel('Trading Days')
+plt.ylabel('Closing Price')
+
+plt.show()
 
 
 
