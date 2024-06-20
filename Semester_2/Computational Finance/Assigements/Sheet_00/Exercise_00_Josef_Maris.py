@@ -1,7 +1,7 @@
 """"----------------------------------------------------------------
 Part 0: Group Information 
 ----------------------------------------------------------------"""
-# Names: Josef Fella, Maris ...
+# Names: Josef Fella, Maris ..., Jennie Le
 # Group: QF 2
 # No. Excercise: 00
 
@@ -65,7 +65,7 @@ print('The fourth entry of R is: ' + str(R[4]))
 # initialize L as the linespace from -2.5 to 2.5 with 50 samples
 L = np.linspace(-2.5, 2.5, 50)
 # print the 20th entry of L
-print('The 20th entry of L is: ' + str(L[20]))
+print('The 20th entry of L is: ' + str(L[19]))
 
 # 4. Matrices
 # define the matrix consisting of 2*X, X+Y and Y^3 (use the numpy power-function)
@@ -138,7 +138,7 @@ print(dax)
 
 # 9. Flip the data
 # since the timeseries is antichronological you need to flip it using the flip-function from numpy.
-dax = np.flipud(dax)
+dax = np.flip(dax)
 
 # 10. Plotting
 # plot the DAX data and label the axis
@@ -165,8 +165,10 @@ def bond_value(V0, r, n, M, c):
         elif c == 0:
             Vn = V0 * np.power((1+r/M), (n*M)) 
             return Vn
+        else:
+            print("Please check your c input")
     else:
-        print("Please check your input") 
+        print("Please check your V0 and r input") 
 
 
 print(bond_value(1000, 0.05, 10, 4, 0))
