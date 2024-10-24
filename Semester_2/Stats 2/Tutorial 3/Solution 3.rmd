@@ -1,0 +1,171 @@
+---
+title: "Tutorial 3"
+author: "Jasper Gross"
+output:
+  html_document:
+    df_print: paged
+    theme: cosmo
+  pdf_document: default
+---
+
+```{=html}
+<style>
+body {text-align: justify}
+</style>
+```
+
+------------------------------------------------------------------------
+
+# Problem 1
+
+The random sample $\{{X}_i, i:1\to n\}$ is drawn from a exponential distribution with pdf $f(x,\theta) = \frac{1}{\theta}\exp\left(-\frac{x}{\theta}\right)$. The following statistics are considered as estimators for $\theta$: $$
+T_1 = \frac{1}{n}\sum_{i=1}^n X_i \quad \mbox{and}\quad T_2 =\Bigg[\frac{1}{2n}\sum_{i=1}^n  X_i^2\Bigg]^{1/2}\,.
+$$
+
+## a)
+
+Write a function for each of the two estimators. The single argument should be a vector.
+
+```{r warning=FALSE, error=TRUE}
+T_1 = function(sample){
+  mean(sample)
+}
+
+T_2 = function(sample){
+  sqrt(0.5*mean(sample^2))
+}
+```
+
+## b)
+
+Now write two functions. The first one should compute the bias of a given statistical quantity. The second one should compute the MSE of that statistial quantity. The Bias and MSE can be defined as $$Bias = \frac{1}{n}\sum_{i=1}^n \hat{Y}_i - Y \hspace{1cm} \text{and} \hspace{1cm}  MSE = \frac{1}{n}\sum_{i=1}^n (\hat{Y}_i - Y)^2,$$ where Y is the true value.
+
+```{r warning=FALSE, error=TRUE}
+bias = function(x, w){
+  mean(x)-w
+}
+
+MSE = function(x, w){
+  mean((x-w)^2)
+}
+```
+
+## c)
+
+Draw random numbers and estimate $\theta$ (the mean) with the first estimator. Repeat this to calculate the MSE (for the first estimator). Compare this result to the MSE decomposition, i.e. $MSE = Bias^2 + Variance$. Does the decomposition hold?
+
+```{r warning=FALSE, error=TRUE}
+# Parameters
+n     = 100   # sample size of RN~Exp(theta)
+N_MC  = 100   # Repetitions of the simualtion
+theta = 5     # true parameter value
+seed  = 666   # seed of your choice
+
+# Estimate the mean
+set.seed(seed)
+sample = replicate(N_MC, T_1(rexp(n, rate = 1/theta)))
+
+# Compute and compare the MSE formulas
+MSE_1 = MSE(sample, theta)
+MSE_2 = bias(sample, theta)^2 + var(sample)
+
+abs(MSE_1 - MSE_2)
+
+# Answer here
+# ???
+```
+
+## d)
+
+Compute samples of biases for $T_1$ and $T_2$. Then plot their empirical densities and indicate their means (use two figures!). Are these estimators biased?
+
+```{r warning=FALSE, error=TRUE, fig.align='center'}
+# Added parameter
+N_MC_2 = 1000  # Repetitions of the 2nd simulation (basically the sample size)
+
+# Compute the samples 
+set.seed(seed)
+bias_t1 = replicate(N_MC_2,bias(replicate(N_MC, T_1(rexp(n, rate = 1/theta))), theta))
+set.seed(seed)
+bias_t2 = replicate(N_MC_2,bias(replicate(N_MC, T_2(rexp(n, rate = 1/theta))), theta))
+
+# Plot 1
+hist(bias_t1, breaks = 'Scott', probability = T, main = 'emp. density of bias_t1')
+abline(v = mean(bias_t1), col = 'green', lwd = 2)
+# Plot 2
+hist(bias_t2, breaks = 'Scott', probability = T, main = 'emp. density of bias_t2')
+abline(v = mean(bias_t2), col = 'red', lwd = 2)
+
+# Answer here
+```
+
+## e)
+
+Compute the variance for both estimators for different n and compare this to the CRLB using a meaningful figure. Add a legend to this figure. Do the estimators reach the CRLB? Can you verify the CRLB theorem? Hints: The CRLB for a exponentially distributed random variable is $CRLB = \frac{\theta^2}{n}$.
+
+```{r warning=FALSE, error=TRUE, fig.align='center', fig.width = 10}
+# parameter
+n = 1:100
+
+vari_1 = replicate(length(n), NA)
+vari_2 = replicate(length(n), NA)
+
+for (i in n){
+  set.seed(seed)
+  vari_1[i] = var(replicate(N_MC, T_1(rexp(i, rate = 1/theta))))
+  set.seed(seed)
+  vari_2[i] = var(replicate(N_MC, T_2(rexp(i, rate = 1/theta))))
+}
+
+plot(n, theta^2/n, type = "l", col = "black", lwd = 2, ylab = "Variance", main = "CRLB")
+lines(n, vari_1, lwd = 2, col = "blue")
+lines(n, vari_2, lwd = 2, col = "green")
+legend("topright", legend = c("CRLB", "T_1", "T_2"), fill = c("black", "blue", "green"))
+
+# Answer here
+```
+
+## f)
+
+Construct a third estimator $T_3$ for $\theta$ which has (theoretically) a smaller variance than the other two and implement this as a function in R.
+
+```{r warning=FALSE, error=TRUE}
+T_3 = function(sample){
+  6
+}
+```
+
+## g)
+
+Compute the MSE of all three estimators for different n and compare those in one single figure. Add a meaningful legend and a title to your plot.
+
+```{r warning=FALSE, error=TRUE, fig.align='center', fig.width = 10}
+# Parameter
+n = 1:100
+
+# Vectors for later
+mse_1 = replicate(length(n), NA)
+mse_2 = replicate(length(n), NA)
+mse_3 = replicate(length(n), NA)
+
+for (i in n){
+  set.seed(seed)
+  mse_1[i] = MSE(replicate(N_MC, T_1(rexp(i, rate = 1/theta))), theta)
+  set.seed(seed)
+  mse_2[i] = MSE(replicate(N_MC, T_2(rexp(i, rate = 1/theta))), theta)
+  set.seed(seed)
+  mse_3[i] = MSE(replicate(N_MC, T_3(rexp(i, rate = 1/theta))), theta)
+}
+
+# Plots
+plot(n, mse_1, type = "l", col = "black", lwd = 2, ylab = "MSE", main = "MSE Comparison")
+lines(n, mse_2, lwd = 2, col = "blue")
+lines(n, mse_3, lwd = 2, col = "green")
+legend("topright", legend = c("T_1", "T_2", "T_3"), fill = c("black", "blue", "green"))
+```
+
+Based on your previous results argue why the MSE might be preferred to the variance as a loss function!
+
+```{r warning=FALSE, error=TRUE}
+# Answer here
+```

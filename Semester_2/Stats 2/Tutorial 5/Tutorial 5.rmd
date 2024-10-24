@@ -1,0 +1,114 @@
+---
+title: "Tutorial 5"
+author: "Jasper Gross"
+output:
+  html_document:
+    df_print: paged
+    theme: cosmo
+---
+<style>
+body {text-align: justify}
+</style>
+---
+
+Suppose that $X_{1,2} \sim \mathcal{N}(0,1)$ and $\varepsilon \sim (0,1)$. The following simple regression model in mean adjusted form is given 
+\[y_i = \beta_1x_{1,i} + \beta_2x_{2,i} + \varepsilon_i\]
+
+### Estimating linear models
+Assume that $\varepsilon$ is also normally distributed. Write two functions. The first should set up the model. The second should estimate the parameters by LS and return the t-statistic for $\beta_i$ under $H_0: \beta_i = 0$, i.e. $t = \frac{\hat\beta_i}{\hat\sigma_{\beta_i}}$.
+
+Hint: The function model.setup should only take the desired sample size and a vector of $\beta$ parameters as arguments. For estim you might find the function **summary()** for the **lm()** result quite useful.
+
+```{r warning=FALSE, error=TRUE}
+model.setup = function(???){
+  ???
+  model = data.frame(???)
+  return(model)
+}
+
+estim = function(???){
+  ???
+  t.stat = ???
+  return(t.stat)
+}
+```
+
+### Size and power of a simple t-test
+In the following we will rely on asymptotics, i.e. assume that the t-statistic is normally distributed. We will conduct a two-sided test with a significance level $\alpha$ of 5%. We reject $H_0$ whenever $|t| > z_{1-\frac{\alpha}{2}}$, where z is the quantile of the underlying distribution. We define $size = P(H_1|H_0)$ and $power = P(H_1|H_1)$. Conduct a Monte-Carlo simulation in which you derive the empirical size and power of the t-test for $H_0: \beta_1 = 0$. Assume that $\beta_2 = 5$. Plot the Probabilities against the values of different true $\beta_1$. Use meaningful names for the axes, add a title and a legend. 
+
+```{r warning=FALSE, error=TRUE}
+# Parameters
+n     = ???
+N_MC  = ???
+beta1 = seq(from = -1, to = 1, by = 0.01)
+beta2 = ???
+alpha = ???
+seed  = ???
+
+# Monte Carlo simulation
+???
+
+# Plot
+???
+```
+
+For any good test the size should be not larger than the significance level, can you verify this with your simulation? How does a perfect test would look like? Plot it!  
+
+```{r warning=FALSE, error=TRUE}
+# Answer here
+# ???
+
+# Plot here
+???
+```
+
+### Size and power of a Wald-test
+Suppose that $X_{1,2} \sim \mathcal{N}(0,1)$ and $\epsilon \sim (0,1)$. The following simple regression model in mean adjusted form is given \[y_i = \beta_1x_{1,i} + \beta_2x_{2,i} + \epsilon_i\]
+Assume that $\varepsilon$ is also normally distributed. Write a function that estimates the parameters by LS and returns the Wald-statistic for $\beta_{1,2}$ under $H_0: \beta_1 = \beta_2 = 0$.
+
+```{r warning=FALSE, error=TRUE}
+estim_wald = function(???){
+  ???
+  W.stat = ???
+  return(W.stat)
+}
+```
+
+Now Visualize the empirical distribution of the Wald-statistic under the null using the function estim_wald(). 
+
+Hint: The theoretical distribution of the Wald-test is $\chi^2_{(q)}$, where q is the numbers of parameters tested.
+
+```{r warning=FALSE, error=TRUE}
+# Parameters
+n     = ???
+N_MC  = ???
+
+# Monte Carlo simulation 1
+???
+
+```
+
+Simulate and visualize size and power using the new model for a grid of $\beta_{1,2}$ values.
+
+Hint: For the plot use the function **image()**. Keep n and N_MC low if the computational time is too long.
+```{r warning=FALSE, error=TRUE}
+# Parameters
+n     = ???
+N_MC  = ???
+beta1 = seq(from = -1, to = 1, by = 0.05)
+beta2 = seq(from = -1, to = 1, by = 0.05)
+alpha = ???
+
+# Monte Carlo simulation 
+???
+
+# Plot image
+???
+```
+
+How can you interpret the results?
+```{r warning=FALSE, error=TRUE}
+# Answer here
+# ???
+```
+

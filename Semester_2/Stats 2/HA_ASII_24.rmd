@@ -1,0 +1,370 @@
+---
+title: "Inferential Statistics Home Assignment 2024"
+author: "Jasper Bär & Lukas Baumann"
+output: pdf_document
+---
+
+# Procedure
+
+-   Try to solve this home assignment and answer all questions in this file by filling the boxes below each exercise.
+-   You can and earn up to 6 bonus points for the final exam.
+-   You can work in groups of up to 5 students.
+-   Hand in your solution (as a Rmd file!) via [e-mail] ([l.baumann\@stat-econ.uni-kiel.de](mailto:l.baumann@stat-econ.uni-kiel.de){.email}) until Friday, 12.07.2024, 23:59:59.
+-   Make sure to include all names and stu-numbers in your mail and in the header of this file!
+-   We won't evaluate your assignment if your code is not running!
+-   Add some comments to your code lines so people can understand your code more easily.
+-   We might ask you to explain your code if we suspect that you did not write it on your own.
+
+!!! Enter your group name and stu-numbers here !!!
+
+1.  First name last name, stu245231
+2.  First name last name, stuXXXXX
+3.  First name last name, stuXXXXX
+4.  First name last name, stuXXXXX
+5.  First name last name, stuXXXXX
+
+!!! Enter your group name and stu-numbers here !!!
+
+### Task 1 \### (3 points)
+
+Consider the sequence of functions $f_n(x) = \frac{n x}{1 + n^2 x^2}$ for $n = 1, 2, 3, \ldots$ and $x \in [0,1]$. Your task is to explore whether this sequence converges to the function $f(x) = 0$ as n increases.
+
+Hint: You might find sapply() helpful for this task. However, there are different ways to find a solution to this problem.
+
+# a)
+
+Write a function in R that computes $f_n(x)$ for given $n$ and $x$. Furthermore, write the target function $f(x)=0$.
+
+```{r}
+
+## initial function
+f_n_x <- function(x, n) {
+  calculation <- (n * x) / (1 + n^2 * x^2)
+  return(calculation)
+}
+
+
+## target function f_x_0, asymp. for large n
+f_x_0 <- function(x){
+  return(0)
+}
+
+
+# Test functions
+f_n_x(1, 3)
+f_x_0(28)
+```
+
+Choose a few fixed points $x = 0.1, 0.3, 0.5, 0.7, 0.9, 1.0$ and values for $n = c(1:100)$ create a single plot showing the values of $f_n(x)$ for the different fixed points as $n$ increases. Add a meaningful tilte, labels for the y- and x-axis as well as a legend to the plot.
+
+For which type of convergence are you testing with this task? Does convergence for this concept hold?
+
+```{r}
+# set x and n values
+x_values <- c(0.1, 0.3, 0.5, 0.7, 0.9, 1.0)
+n_sequence <- seq(from = 1, to = 100, length.out = 100)
+
+
+# calculate results for all "cases" using sapply()-function, basically iterating thru values (nested loop)
+results <- sapply(x_values, function(x) {
+  sapply(n_sequence, function(n) {
+    f_n_x(x, n)
+  })
+})
+
+
+# plot results
+
+max_row_index <- which.max(results[, 1])
+max_row <- results[max_row_index, ]
+print(max_row_index)
+
+# Answer here
+# Its called pointwise convergences.
+# yes
+
+
+```
+
+```{r}
+
+# Fixed points x
+x_points <- c(0.1, 0.3, 0.5, 0.7, 0.9, 1.0)
+
+# Sequence of n values from 1 to 100
+n_values <- 1:100
+
+# Compute the values of f_n(x) for each fixed x and n
+results <- sapply(x_points, function(x) sapply(n_values, function(n) f_n(x, n)))
+
+# Plot the results
+plot(n_values, results[,1], type = 'l', col = 1, lty = 1, ylim = c(0, 1),
+     xlab = "n", ylab = expression(f[n](x)),
+     main = expression(paste("Values of ", f[n](x), " for different fixed x as n increases")))
+
+# Add lines for the other x points
+for (i in 2:length(x_points)) {
+  lines(n_values, results[,i], col = i, lty = i)
+}
+
+# Add a legend
+legend("topright", legend = paste("x =", x_points), col = 1:length(x_points), lty = 1:length(x_points))
+
+
+
+# Answer here
+# pointwise convergences.
+# 
+
+```
+
+# b)
+
+Now you are supposed to create a sequence of plots showing $f_n(x)$ for $n = 10, 20, 50, 100, 200$ over the interval $x \in [0, 1]$ in one single figure. Add the target function $f(x) = 0$ to each plot. Add a meaningful tilte, labels for the y- and x-axis as well as a legend to the plots.
+
+For which type of convergence are you testing with this task? Does convergence for this concept hold?
+
+Hint: You may use par(mfrow=c(3,2)) to create the figure.
+
+```{r}
+# Set up the multi-panel plot
+par(mfrow = c(3, 2), mar = c(4, 4, 2, 1)) # 3 rows, 2 columns
+
+# Loop through each n value to create plots
+for (n in n_values) {
+  # Compute f_n(x) for each x value
+  fn_values <- sapply(x, function(xi) f_n_x(xi, n))
+  
+  # Plot f_n(x)
+  plot(x, fn_values, type = 'l', col = 'blue',
+       xlab = "x", ylab = expression(f[n](x)),
+       main = paste("f_n(x) for n =", n),
+       ylim = c(-0.5, 0.5))
+  
+  # Add the target function f(x) = 0
+  abline(h = 0, col = 'red', lty = 2, lwd = 2)
+  
+  # Add a legend
+  legend("topright", legend = c(expression(f[n](x)), "f(x) = 0"),
+         col = c('blue', 'red'), lty = c(1, 2), lwd = 2)
+}
+
+
+# Answer here:
+# 
+```
+
+Choose an $\epsilon > 0$, for instance, $\epsilon = 0.1$. Plot $|f_n(x) - f(x)|$ for $n = 1, 2, 5, 10, 20$ and show that there are always some values of $x$ in $[0, 1]$ such that $|f_n(x) - f(x)| > \epsilon$ to support your argument in (b).
+
+What do the plots show and what can we conclude from this observation?
+
+```{r}
+
+# Set up the plotting area
+par(mfrow = c(3, 2))
+
+# Define the range of x
+x <- seq(0, 1, length.out = 1000)
+
+# Define the values of n
+n_values <- c(10, 20, 50, 100, 200)
+
+# Plot f_n(x) and f(x) for each value of n
+for (n in n_values) {
+  y <- f_n(n, x)
+  plot(x, y, type = "l", col = "blue", ylim = c(-0.5, 0.5),
+       main = paste("f_n(x) for n =", n),
+       ylab = expression(f[n](x)), xlab = "x")
+  abline(h = 0, col = "red", lty = 2) # Add the target function f(x) = 0
+  legend("topright", legend = c(expression(f[n](x)), expression(f(x) == 0)), 
+         col = c("blue", "red"), lty = c(1, 2))
+}
+
+
+
+
+
+#Answer here:
+#
+```
+
+### Task 2 \### (3 Points)
+
+Calculate Power for a permutation test
+
+For this problem, the following simple regression model is given $y_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + \varepsilon_i$, where $\quad i = 1, 2, \ldots, n$, $X_1 \sim \mathcal{U}(1,10)$, $X_2 \overset{\text{iid}}{\sim} \text{Bernoulli}(p)$, and $\varepsilon \sim \mathcal{N}(0,1)$. Further, you can assume that $y_i = 1 + 0.2 x_{1i} + 0.1 x_{2i} + \varepsilon_i$.
+
+Whenever using random numbers please use seed = 100.
+
+# a) Create Data
+
+Write two functions. The first should set up the model. The second should estimates the coeffcient $\beta_1$ and its t-value. You may use the $lm()$ function for this step.
+
+```{r}
+
+# Set seed for reproducibility
+set.seed(100)
+
+# Function to generate data
+generate_data <- function(n) {
+  # Generate predictors
+  X1 <- runif(n, 1, 10)  # X1 ~ U(1, 10)
+  X2 <- rbinom(n, 1, 0.5)  # X2 ~ Bernoulli(0.5)
+  
+  # Generate error term
+  epsilon <- rnorm(n, 0, 1)  # epsilon ~ N(0, 1)
+  
+  # Calculate response variable
+  y <- 1 + 0.2 * X1 + 0.1 * X2 + epsilon
+  
+  # Return the data as a data frame
+  return(data.frame(y = y, X1 = X1, X2 = X2))
+}
+
+# Example of generating data with n = 100
+data <- generate_data(100)
+head(data)
+
+```
+
+# b) Perform a permutation test
+
+Perform a permutation test for the effect of $X_1$ on $Y$. First, generate data with the function you just created. Then, randomly sample $Y$ 30 times and fit the model for each sampled dataset. For each sampled dataset, calculate the coefficient for $\beta_1$ and its t-value. Calculate the p-value as the proportion of times the absolute t-values from the sampled data are greater than or equal to the absolute t-value from the original data. Repeat these steps 100 times and calculate the share of rejections at the 5% level. Perform this process for different sample sizes, starting at 50 and increasing by 50 until reaching 500.
+
+```{r}
+
+# Set seed for reproducibility
+set.seed(100)
+
+# Function to perform permutation test
+permutation_test <- function(data, num_permutations = 100) {
+  # Fit the original model
+  original_model <- lm(y ~ X1 + X2, data = data)
+  original_summary <- summary(original_model)
+  original_t_value <- original_summary$coefficients["X1", "t value"]
+  
+  # Perform permutations
+  perm_t_values <- numeric(num_permutations)
+  for (i in 1:num_permutations) {
+    # Shuffle the response variable
+    permuted_y <- sample(data$y)
+    
+    # Fit the model to the permuted data
+    permuted_model <- lm(permuted_y ~ data$X1 + data$X2)
+    permuted_summary <- summary(permuted_model)
+    
+    # Store the t-value for X1
+    perm_t_values[i] <- permuted_summary$coefficients["data$X1", "t value"]
+  }
+  
+  # Calculate the p-value
+  p_value <- mean(abs(perm_t_values) >= abs(original_t_value))
+  
+  return(p_value)
+}
+
+# Function to calculate power for different sample sizes
+calculate_power <- function(sample_sizes, num_iterations = 100, num_permutations = 30) {
+  power_results <- numeric(length(sample_sizes))
+  
+  for (j in seq_along(sample_sizes)) {
+    n <- sample_sizes[j]
+    rejections <- numeric(num_iterations)
+    
+    for (i in 1:num_iterations) {
+      # Generate data
+      data <- generate_data(n)
+      
+      # Perform permutation test
+      p_value <- permutation_test(data, num_permutations)
+      
+      # Check if p-value is less than 0.05
+      rejections[i] <- (p_value < 0.05)
+    }
+    
+    # Calculate the power
+    power_results[j] <- mean(rejections)
+  }
+  
+  return(power_results)
+}
+
+# Define sample sizes
+sample_sizes <- seq(50, 500, by = 50)
+
+# Calculate power for the given sample sizes
+power_results <- calculate_power(sample_sizes)
+
+# Print power results
+data.frame(SampleSize = sample_sizes, Power = power_results)
+
+
+
+```
+
+# c) Compare test results
+
+Repeat the steps from task b), but set $beta_1 = 0$ for the data generation. Plot the results for the different samples sizes in the same plot as the results for taks b) and compare. Interpret the plot.
+
+```{r}
+
+# Function to generate data with beta1 = 0
+generate_data_beta1_0 <- function(n) {
+  X1 <- runif(n, 1, 10)  # X1 ~ U(1, 10)
+  X2 <- rbinom(n, 1, 0.5)  # X2 ~ Bernoulli(0.5)
+  epsilon <- rnorm(n, 0, 1)  # epsilon ~ N(0, 1)
+  y <- 1 + 0 * X1 + 0.1 * X2 + epsilon
+  return(data.frame(y = y, X1 = X1, X2 = X2))
+}
+
+# Function to calculate power for different sample sizes with beta1 = 0
+calculate_power_beta1_0 <- function(sample_sizes, num_iterations = 100, num_permutations = 30) {
+  power_results <- numeric(length(sample_sizes))
+  
+  for (j in seq_along(sample_sizes)) {
+    n <- sample_sizes[j]
+    rejections <- numeric(num_iterations)
+    
+    for (i in 1:num_iterations) {
+      # Generate data with beta1 = 0
+      data <- generate_data_beta1_0(n)
+      
+      # Perform permutation test
+      p_value <- permutation_test(data, num_permutations)
+      
+      # Check if p-value is less than 0.05
+      rejections[i] <- (p_value < 0.05)
+    }
+    
+    # Calculate the power
+    power_results[j] <- mean(rejections)
+  }
+  
+  return(power_results)
+}
+
+# Calculate power for the given sample sizes with beta1 = 0
+power_results_beta1_0 <- calculate_power_beta1_0(sample_sizes)
+
+# Install ggplot2 package if not already installed
+if (!require(ggplot2)) {
+  install.packages("ggplot2")
+  library(ggplot2)
+}
+
+# Create data frames for plotting
+power_data <- data.frame(SampleSize = rep(sample_sizes, 2),
+                         Power = c(power_results, power_results_beta1_0),
+                         Beta1 = factor(rep(c("0.2", "0"), each = length(sample_sizes))))
+
+# Plot the results
+ggplot(power_data, aes(x = SampleSize, y = Power, color = Beta1, group = Beta1)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Power of Permutation Test for Different Sample Sizes",
+       x = "Sample Size",
+       y = "Power",
+       color = "Beta1") +
+  theme_minimal()
+
+```

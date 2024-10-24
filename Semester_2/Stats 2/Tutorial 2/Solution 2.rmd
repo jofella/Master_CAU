@@ -1,0 +1,196 @@
+---
+title: "Tutorial 2"
+author: "Jasper Gross"
+output:
+  html_document:
+    df_print: paged
+    theme: cosmo
+---
+
+```{=html}
+<style>
+body {text-align: justify}
+</style>
+```
+
+------------------------------------------------------------------------
+
+# Problem 1
+
+Let $(X_i, i:1\to n)$ be a random sample from a Uniform distribution on the interval $(0,1]$ with the respective order statistics $X_{[1]}\leq X_{[2]}\leq\cdots\leq X_{[n]}$.
+
+Show that the density of the sample minimum and maximum is beta distributed (see also the PP-tutorial).\
+Define the parameters for this exercise:
+
+```{r warning=FALSE, error=TRUE}
+N_MC = 1000
+n = 20
+```
+
+Draw random samples, i.e. construct the simulation:
+
+```{r warning=FALSE, error=TRUE}
+set.seed(666)
+X_min = replicate(N_MC, min(runif(n)))
+X_max = replicate(N_MC, max(runif(n)))
+```
+
+Construct the theoretical part for comparison:
+
+```{r warning=FALSE, error=TRUE}
+x_theo = seq(from = 0, to = 1, length.out = 10000)
+y_theo = list(min = dbeta(x_theo, shape1 = 1, shape2 = n), max = dbeta(x_theo, shape1 = n,shape2 = 1))
+```
+
+Compare all quantities using histograms for both the densities of sample minimum and maximum and add the theoretical counterparts. Construct only a single figure!
+
+```{r warning=FALSE, error=TRUE}
+
+hist(X_min, breaks = "Scott", prob = T, xlim = c(0,1), col = "darkgreen", main = "Compare densities of sample minimum and maximum", xlab = 'x')
+lines(x_theo, y_theo$min, col = "green")
+hist(X_max, breaks = "Scott", prob = T, xlim = c(0,1), col = "darkred", add = T)
+lines(x_theo, y_theo$max, col = "red")
+```
+
+How can you get an idea - based on the figure - what the probability limits are?
+
+```{r warning=FALSE, error=TRUE}
+# Choose a larger n: The densities will collapse to a vertical line - the probability limits.
+```
+
+# Problem 2
+
+Define the sequence of functions $f_n(x) = x^n, x \in [0,1]$.
+
+### Part a)
+
+Check whether this function converges point wise to a limit $f(x)$.\
+Implement the function $f_n(x)$ in R:
+
+```{r warning=FALSE, error=TRUE}
+f_n = function(x, n){
+  calculation = x^n
+  return(calculation)
+}
+```
+
+Define the limit $f(x)$ of the sequence $f_n(x)$ in R: Hint: Make a case-distinction!
+
+```{r warning=FALSE, error=TRUE}
+limit_f = function(x){
+   if (x < 1){
+     calculation = 0
+   }else {
+     calculation = 1
+   } 
+  return(calculation)
+}
+```
+
+Check whether the function $f_n(x)$ converges point wise to its limit with the help of a figure. To do so write a function abs_diff() which computes the difference of the function value and it's supposed limit for a given n. Include in your plot 3 different values for n! For each value of n use a different color.
+
+```{r warning=FALSE, error=TRUE}
+abs_diff = function(x, n, f_n, limit_f){
+  calculation = abs(f_n(x, n)-limit_f(x))
+  return(calculation)
+}
+
+x = seq(from = 0, to = 1, length.out = 10000)
+plot(x, abs_diff(x, n = 1, f_n, limit_f), type = "l", lwd = 2, col = "red", main = "Visualize pointwise convergence of f_n for different n", xlab = "x", ylab = "f_n")
+lines(x, abs_diff(x, n = 10, f_n, limit_f), lwd = 2, col = "green")
+lines(x, abs_diff(x, n = 100, f_n, limit_f), lwd = 2, col = "blue")
+```
+
+### Part b)
+
+Unfortunately we can not show formally using simulation techniques that the function does not converge uniformly, but for given N and absolute error $\epsilon>0$, we can always find an x for which the difference between function value and supposed limit exceeds $\epsilon$. Choose values for $\epsilon$, N (N\>100) and a starting point x. Write a function distance() which uses the arguments and checks whether the difference between function value and supposed limit is larger than $\epsilon$. If this is not the case x should be adjusted and the procedure repeated until you have found an x for which the error is larger than $\epsilon$. Your function should return just the previously found value for x. Hint: You may use the function abs_diff() from the previous task!
+
+```{r warning=FALSE, error=TRUE}
+epsilon = 0.5
+N = 1000
+x = 0.5
+distance = function(epsilon, N, x){
+  dist = abs_diff(x = x, n = N, f_n, limit_f)
+  while (dist < epsilon){
+    x = x + 0.0001
+    dist = abs_diff(x, n, f_n, limit_f)
+  }
+  return(paste("For x >", x, "the distance is larger than epsilon"))
+}
+distance(epsilon = epsilon, N = N, x = x)
+```
+
+# Problem 3
+
+Consider the following estimators $\hat{\mu}_{X}^{(j)}$ for the mean of a Gamma distributed population with $X \sim Gamma(shape, scale)$ and a random sample $\{{X}_i, i:1\to n\}$, where $3<n<\infty$. The expected value of a Gamma random variable is $E(X)=shape\cdot scale$. Suppose we are interested in estimating $E(X)$. We might use any of the following estimators: $$
+\hat\mu^{(1)}_X=\frac{1}{n-1}\sum_{i=1}^n X_i; \quad \hat\mu^{(2)}_X=\frac{1}{3}\sum_{i=1}^3 X_i; \quad \hat\mu^{(3)}_X=\frac{1}{n}\sum_{i=1}^n X_i. 
+$$
+
+To decide which estimator performs relatively "well", we consider the Mean-Squared-Error (MSE) as our loss-function. Therefore we are interested in the MSE of these three estimators as a function of n. Define all three estimators in R:
+
+```{r warning=FALSE, error=TRUE}
+mu_1 = function(x){
+  m = 1/(length(x)-1)*sum(x)
+  return(m)
+}
+mu_2 = function(x){
+  m = sum(x[1:3])/3
+  return(m)
+}
+mu_3 = function(x){
+  m = mean(x)
+  return(m)
+}
+```
+
+Write a function for the MSE, which is defined as $$MSE = \frac{1}{N_{MC}}\sum_{i=1}^{N_{MC}} (Y_i-\hat{Y_i})^2$$.
+
+```{r warning=FALSE, error=TRUE}
+MSE = function(x, mu = mu){
+  result = mean((x-mu)^2)
+  return(result)
+}
+```
+
+Define all parameters for this problem:
+
+```{r warning=FALSE, error=TRUE}
+N_MC = 1000
+shape = 5
+scale = 3
+mu = shape*scale # expected value
+n = seq(from = 3,to = 100)
+seednum = 777
+```
+
+Since we would like to compare the relative performance for those estimators we have to use the same sample for all estimators. Therefore we will use a loop for every value in n. We will construct a sequence for each estimator:\
+Hint: Combine the functions MSE(), mu_i() and replicate()!
+
+```{r warning=FALSE, error=TRUE}
+Results_1 = replicate(length(n),NA) # for later use
+Results_2 = replicate(length(n),NA) # for later use
+Results_3 = replicate(length(n),NA) # for later use
+
+for (i in n) {
+  set.seed(seednum)
+  Results_1[i-2] = MSE(replicate(N_MC, mu_1(rgamma(i, shape = shape, scale = scale))), mu = mu)
+  set.seed(seednum)
+  Results_2[i-2] = MSE(replicate(N_MC, mu_2(rgamma(i, shape = shape, scale = scale))), mu = mu)
+  set.seed(seednum)
+  Results_3[i-2] = MSE(replicate(N_MC, mu_3(rgamma(i, shape = shape, scale = scale))), mu = mu)
+}
+```
+
+Finally compare the MSE of the three estimators. Thus plot the MSE for each estimator as a function of n. Use different colors in your plot. Again use only a single figure!
+
+```{r warning=FALSE, error=TRUE}
+plot(n, Results_1, col = "green", lwd = 2, main = "Comparison of three estimators for different n", type = "l", ylab = "MSE")
+lines(n, Results_2, col = "blue", lwd = 2)
+lines(n, Results_3, col = "red", lwd = 2)
+```
+
+Based on the graph which estimator(s) do you prefer? Explain your answer shortly!
+
+```{r warning=FALSE, error=TRUE}
+# For shorter sample sizes we may use the sample mean (estimator 3), for larger samples we can also use the transformed mean (estimator 1) or the sample mean (again estimator 3). The second method is outperformed for every n (at least for this parameter combination of shape and scale.
+```

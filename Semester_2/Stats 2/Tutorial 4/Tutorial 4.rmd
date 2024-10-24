@@ -1,0 +1,180 @@
+---
+title: "Tutorial 4"
+author: "Jasper Gross"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+    theme: cosmo
+---
+<style>
+body {text-align: justify}
+</style>
+---
+
+# Problem 1
+Let $X_i \sim \Gamma(\alpha, \beta=1)$. We are interested in estimating $\alpha$ via LS, ML and (G)MM.  
+The log-likelihood is given by \[\ln(f_\Gamma(x)) = -\alpha n\ln(\beta)-n\ln(\Gamma(\alpha)) + (\alpha-1)\sum_{i=1}^n \ln(x_i)-\frac{1}{\beta}\sum_{i=1}^nx_i\] Implement the log-likelihood as a function in R:
+
+```{r warning=FALSE, error=TRUE}
+log.gamma = function(???){
+  ll = ???
+  return(ll)
+}
+```
+
+For the GMM method we need certain moment conditions, we will use the first two noncentral moments. Thus the moment conditions are defined as \[ m1 = x - \alpha\beta\\ m2 = x^2 -\alpha\beta^2(\alpha+1)\] Implement those as a function in R. Make sure that the sample is the last argument of the function and a matrix is returned (each column has to be a moment).
+
+```{r warning=FALSE, error=TRUE}
+moments.gamma = function(???){
+  m1 = ???
+  m2 = ???
+  return(???)
+}
+```
+
+Write a function that estimates $\alpha$ by means of LS and returns the estimated quantity. Hint: Use the function *lm()* and just a constant as regressor!
+
+```{r warning=FALSE, error=TRUE}
+ls.fit = function(???){
+  coeff = ???
+  names(coeff) = ???
+  return(coeff)
+}
+```
+
+Write a function for the ML estimator which makes use of the function *optimize()*:
+
+```{r warning=FALSE, error=TRUE}
+ml.fit = function(???){
+  coeff = ???
+  names(coeff) = ???
+  return(coeff)
+}
+```
+
+To estimate $\alpha$ by GMM we will use the GMM-package, which you might have to install via *install.packages("gmm")*. Do not forget to call the library! Write a function which makes use of the function *gmm()* with the moments conditions above to estimate $\alpha$:
+
+```{r warning=FALSE, error=TRUE}
+gmm.fit = function(???){
+  coeff = ???
+  names(coeff) = ???
+  return(coeff)
+}
+```
+
+Construct a sample of size 100 to estimate $\alpha$ via LS, ML and GMM with the previously defined functions.
+
+```{r warning=FALSE, error=TRUE}
+# Parameter
+seed  = ??? 
+n     = ???
+alpha = ???
+
+# Sample
+set.seed(seed)
+sample = ???
+  
+# Estimates
+ls.fit(sample)
+ml.fit(sample)
+gmm.fit(moments.gamma, sample)
+```
+
+Which estimator delivers the most accurate guess? 
+```{r warning=FALSE, error=TRUE}
+# Answer here
+```
+
+
+# Problem 2
+Assume a random sample from a logistic distribution, where the pdf is defined by \[f(x; m,s) =\frac{\exp\left(-\frac{x-m}{s}\right)}{s\left(1+\exp\left(-\frac{x-m}{s}\right)\right)^2} \] with moments $E(X)=m$ and $Var(X)=\frac{s^2\pi^2}{3}$. Interest lies on estimating m and s jointly. The log-likelihood function is given by \[\ln(f(m,s; \underline{x})) = -\sum_{i=1}^n \frac{x_i-m}{s}-n\ln(s)-2\sum_{i=1}^n\ln\left(1+\exp\left(-\frac{x_i-m}{s}\right)\right)\] Implement this function in R.
+
+```{r warning=FALSE, error=TRUE}
+log.logistic = function(???){
+  ll = ???
+  return(ll)
+}
+```
+
+Use the first non-central and second central moments as moment conditions. Implement these as a function in R. Hint: The sample should be again the last argument of this function and a matrix should be returned with each column a moment condition.
+
+```{r warning=FALSE, error=TRUE}
+moments.logistic = function(???){
+  m1 = ???
+  m2 = ???
+  return(???) 
+}
+```
+
+Again write a function to estimate the two parameters by LS. This function should return a named vector.
+
+```{r warning=FALSE, error=TRUE}
+ls.fit = function(???){
+  fit = ???
+  m = ???
+  s = ???
+  theta = c(m, s)
+  names(theta) = ???
+  return(theta)
+}
+```
+
+Write a function that returns the ML estimates for m and s as a named vector (same names as before). Hint: Use the function *optim()* for this purpose.
+
+```{r warning=FALSE, error=TRUE}
+ml.fit = function(???){
+  fit = ???
+  names(fit) = ???
+  return(fit)
+}
+```
+
+Lastly write a function that returns the GMM estimates as a named vector (again, same names as before). Make use of your moment function and the gmm package.
+
+```{r warning=FALSE, error=TRUE}
+gmm.fit = function(???){
+  fit = ???
+  names(fit) = ???
+  return(fit)
+}
+```
+
+Construct a sample and estimate based on this sample m and s by LS, ML and GMM. What can you say about the performance of these estimators? Hint: You can draw random numbers from a logistic distribution with *rlogis()*  
+
+
+```{r warning=FALSE, error=TRUE}
+# Parateter
+param  = ???
+  
+# Sample
+set.seed(seed)
+sample = ???
+
+# Estimates
+ls.fit(sample)
+ml.fit(sample)
+gmm.fit(sample)
+```
+
+Finally compare the performance of these estimators by MSE (for each parameter seperately, i.e. MSE for m and MSE for s). Don't use any loops! Additionally estimate the time for running each simulation with the help of the function *proc.time()*. Considering your simulation result as well as computation time which estimator would you prefer? Why? Explain shortly! Hint: You might find the function *rowMeans()* helpful.
+
+```{r warning=FALSE, error=TRUE}
+# Parameter
+N_MC = ???
+  
+
+# Estimates
+set.seed(seed)
+ls.results = ???
+MSE_ls = ???
+  
+set.seed(seed)
+ml.results = ???
+MSE_ml = ???
+  
+set.seed(seed)
+gmm.results = ???
+MSE_gmm = ???
+```
+

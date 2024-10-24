@@ -1,0 +1,175 @@
+---
+title: "Tutorial 2"
+author: "Jasper Gross"
+output:
+  html_document:
+    df_print: paged
+    theme: cosmo
+---
+<style>
+body {text-align: justify}
+</style>
+---
+
+# Problem 1
+Let $(X_i, i:1\to n)$ be a random sample from a Uniform distribution on the interval $(0,1]$ with the respective order statistics $X_{[1]}\leq X_{[2]}\leq\cdots\leq X_{[n]}$.  
+
+Show that the density of the sample minimum and maximum is beta distributed (see also the PP-tutorial).  
+Define the parameters for this exercise:
+```{r warning=FALSE, error=TRUE}
+N_MC = ???
+n = ???
+```
+
+Draw random samples, i.e. construct the simulation:
+
+```{r warning=FALSE, error=TRUE}
+set.seed(???)
+X_min = replicate(???, ???)
+X_max = replicate(???, ???)
+```
+
+Construct the theoretical part for comparison:
+
+```{r warning=FALSE, error=TRUE}
+x_theo = ???
+y_theo = ???
+```
+
+Compare all quantities using histograms for both the densities of sample minimum and maximum and add the theoretical counterparts. Construct only a single figure!
+
+```{r warning=FALSE, error=TRUE}
+hist(???, breaks = ???, prob = ???, xlim = c(0,1), col = darkgreen, main = "Compare densities of sample minimum and maximum")
+lines(???, ???, col = green)
+hist(???, breaks = ???, prob = ???, xlim = c(0,1), col = darkred, add = T)
+lines(???, ???, col = red)
+```
+
+How can you get an idea - based on the figure - what the probability limits are?
+```{r warning=FALSE, error=TRUE}
+# Answer here
+```
+
+# Problem 2
+
+Define the sequence of functions $f_n(x) = x^n, x \in [0,1]$. 
+
+### Part a)
+Check whether this function converges point wise to a limit $f(x)$.  
+Implement the function $f_n(x)$ in R:
+
+```{r warning=FALSE, error=TRUE}
+f_n = function(???, ???){
+  calculation = ???
+  return(calculation)
+}
+```
+
+Define the limit $f(x)$ of the sequence $f_n(x)$ in R: 
+Hint: Make a case-distinction!
+
+```{r warning=FALSE, error=TRUE}
+limit_f = function(???)
+  calculation = ???
+  return(calculation)
+```
+
+Check whether the function $f_n(x)$ converges point wise to its limit with the help of a figure. To do so write a function abs_diff() which computes the difference of the function value and it's supposed limit for a given n. Include in your plot 3 different values for n! For each value of n use a different color.
+
+```{r warning=FALSE, error=TRUE}
+abs_diff = function(???){
+  calculation = ???
+  return(calculation)
+}
+x = seq(from = ???, to = ???, length.out = 1000)
+plot(???)
+```
+
+### Part b)
+Unfortunately we can not show formally using simulation techniques that the function does not converge uniformly, but for given N and absolute error $\epsilon>0$, we can always find an x for which the difference between function value and supposed limit exceeds $\epsilon$. Choose values for $\epsilon$, N (N>100) and a starting point x. Write a function distance() which uses the arguments and checks whether the difference between function value and supposed limit is larger than $\epsilon$. If this is not the case x should be adjusted and the procedure repeated until you have found an x for which the error is larger than $\epsilon$. Your function should return just the previously found value for x.
+Hint: You may use the function abs_diff() from the previous task!
+
+```{r warning=FALSE, error=TRUE}
+epsilon = ???
+N = ???
+x = ???  
+distance = function(???){
+  ???
+    
+  return(paste("For x >", x, "the distance is larger than epsilon"))  
+}  
+```
+
+
+# Problem 3
+Consider the following estimators $\hat{\mu}_{X}^{(j)}$ for the mean of a Gamma distributed population with $X \sim Gamma(shape, scale)$ and a random sample $\{{X}_i, i:1\to n\}$, where $3<n<\infty$. The expected value of a Gamma random variable is $E(X)=shape\cdot scale$. Suppose we are interested in estimating $E(X)$. We might use any of the following estimators:
+\[
+\hat\mu^{(1)}_X=\frac{1}{n-1}\sum_{i=1}^n X_i; \quad \hat\mu^{(2)}_X=\frac{1}{3}\sum_{i=1}^3 X_i; \quad \hat\mu^{(3)}_X=\frac{1}{n}\sum_{i=1}^n X_i. 
+\]
+
+To decide which estimator performs relatively "well", we consider the Mean-Squared-Error (MSE) as our loss-function. Therefore we are interested in the MSE of these three estimators as a function of n. Define all three estimators in R:
+
+```{r warning=FALSE, error=TRUE}
+mu_1 = function(???){
+  ???
+}
+
+mu_2 = function(???){
+  ???
+}
+
+mu_3 = function(???){
+  ???
+}
+```
+
+Write a function for the MSE, which is defined as \[MSE = \frac{1}{N_{MC}}\sum_{i=1}^{N_{MC}} (Y_i-\hat{Y_i})^2\].
+
+```{r warning=FALSE, error=TRUE}
+MSE = function(???, mu = mu){
+  ???
+}
+```
+
+
+Define all parameters for this problem:
+
+```{r warning=FALSE, error=TRUE}
+N_MC = ???
+shape = ???
+scale = ???
+mu = shape*scale # expected value  
+n = 3:100
+seednum = ???
+```
+
+Since we would like to compare the relative performance for those estimators we have to use the same sample for all estimators. Therefore we will use a loop for every value in n. We will construct a sequence for each estimator:  
+Hint: Combine the functions MSE(), mu_i() and replicate()!
+
+```{r warning=FALSE, error=TRUE}
+Results_1 = c() # for later use
+Results_2 = c() # for later use
+Results_3 = c() # for later use
+
+for (i in n) {
+  set.seed(seednum)
+  Results_1[i-2] = ???
+  set.seed(seednum)
+  Results_2[i-2] = ???
+  set.seed(seednum)
+  Results_3[i-2] = ???
+  
+}
+```
+
+Finally compare the MSE of the three estimators. Thus plot the MSE for each estimator as a function of n. Use different colors in your plot. Again use only a single figure!
+
+```{r warning=FALSE, error=TRUE}
+???
+```
+
+Based on the graph which estimator(s) do you prefer? Explain your answer shortly!
+```{r warning=FALSE, error=TRUE}
+# Answer here
+```
+

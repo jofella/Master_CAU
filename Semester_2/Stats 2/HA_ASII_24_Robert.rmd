@@ -1,0 +1,371 @@
+---
+title: "Inferential Statistics Home Assignment 2024"
+author: "Jasper Bär & Lukas Baumann"
+output: pdf_document
+---
+
+# Procedure
+
+-   Try to solve this home assignment and answer all questions in this file by filling the boxes below each exercise.
+-   You can and earn up to 6 bonus points for the final exam.
+-   You can work in groups of up to 5 students.
+-   Hand in your solution (as a Rmd file!) via [e-mail] ([l.baumann\@stat-econ.uni-kiel.de](mailto:l.baumann@stat-econ.uni-kiel.de){.email}) until Friday, 12.07.2024, 23:59:59.
+-   Make sure to include all names and stu-numbers in your mail and in the header of this file!
+-   We won't evaluate your assignment if your code is not running!
+-   Add some comments to your code lines so people can understand your code more easily.
+-   We might ask you to explain your code if we suspect that you did not write it on your own.
+
+!!! Enter your group name and stu-numbers here !!!
+
+1.  First name last name, stuXXXXX
+2.  First name last name, stuXXXXX
+3.  First name last name, stuXXXXX
+4.  First name last name, stuXXXXX
+5.  Robert Hennings, stu236320
+
+!!! Enter your group name and stu-numbers here !!!
+
+### Task 1 \### (3 points)
+
+Consider the sequence of functions $f_n(x) = \frac{n x}{1 + n^2 x^2}$ for $n = 1, 2, 3, \ldots$ and $x \in [0,1]$. Your task is to explore whether this sequence converges to the function $f(x) = 0$ as n increases.
+
+Hint: You might find sapply() helpful for this task. However, there are different ways to find a solution to this problem.
+
+# a)
+
+Write a function in R that computes $f_n(x)$ for given $n$ and $x$. Furthermore, write the target function $f(x)=0$.
+
+```{r}
+# set up the comparing function
+f_n_x <-  function(x, n){
+  # check for function types and number ranges
+  if((x>=0 & x<=1)==F){
+    print("x has to be in the range [0, 1]")
+  }
+  # set up helper function to check for a whole number as described in docs
+  is.wholenumber <-
+    function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
+  if (is.wholenumber(n)==F){
+    return("n must be a positive integer!")
+  }
+  result <- (n*x) / (1 + n^2 * x^2)
+  return(result)
+}
+# Test the first function
+result <- f_n_x(x=0.9, n=2)
+print(result)
+
+# set up the target function
+f_x <- function(x){
+  # simply returns 0
+  len <- length(x)
+  return(rep(0, len))
+}
+# Test the second function
+result <- f_x(x=0.9)
+print(result)
+```
+
+Choose a few fixed points $x = 0.1, 0.3, 0.5, 0.7, 0.9, 1.0$ and values for $n = c(1:100)$ create a single plot showing the values of $f_n(x)$ for the different fixed points as $n$ increases. Add a meaningful title, labels for the y- and x-axis as well as a legend to the plot.
+
+For which type of convergence are you testing with this task? Does convergence for this concept hold?
+
+```{r}
+x <- c(0.1, 0.3, 0.5, 0.7, 0.9, 1.0)
+n <- floor(seq(from=1, to=100, length.out=length(x))) # length can be set arbitrarily
+
+get_result_df <- function(x, n){
+  # create an empty matrix, convert to data.frame for data storage
+  result_df <- data.frame(data=matrix(data=0, nrow=length(n), ncol=length(x)),
+                          row.names = as.character(n))
+  colnames(result_df) <- as.character(x)
+  # iterate over the test size n, holding it fixed
+  # and then loop through all the given x-values 
+  for(n_ in n){
+    # iterate over the values with fixed n
+    for(x_ in x){
+      result_f_n_x <- f_n_x(x=x_, n=n_)
+      # save the result at the correct spot in the matrix
+      result_df[as.character(n_), as.character(x_)] <- result_f_n_x
+    }
+  }
+  return(result_df)
+}
+
+# create the single plot
+# plot settings
+result_df <- get_result_df(x=x, n=n)
+col_vals <- c("blue", "green", "black", "red", "yellow", "orange") # must equal the length of n
+main <- "Test for convergence for different values x in [0, 1] and sizes n in 1:100"
+
+get_comparison_plot <- function(result_df, x, n, col_vals, main){
+  for(ind in 1:dim(result_df)[1]){
+    row <- rownames(result_df)[ind]
+    col <- col_vals[ind]
+    if(row==rownames(result_df)[1]){
+      # plot the initial figure to which lines will be added afterwards
+      plot(x=x,
+           y=result_df[as.character(row), ],
+           xlim=c(min(x), max(x)),
+           ylim=c(min(result_df), max(result_df)),
+           col=col,
+           xlab="X-values",
+           ylab="Function-values: f_x_n",
+           main=main,
+           cex.main=0.8,
+           type="l"
+      )  
+    }else{
+      lines(x=x,
+            y=result_df[as.character(row), ],
+            col=col)
+    }
+  }
+  legend("topright",
+         title = "Size",
+         legend = n,
+         col = col_vals,
+         lty = c(1, 1, 1),
+         lwd=c(1, 1, 1)
+  )
+}
+
+get_comparison_plot(result_df=result_df, x=x, n=n, col_vals=col_vals, main=main)
+
+# Answer here
+# convergence in distribution, in probability
+```
+
+# b)
+
+Now you are supposed to create a sequence of plots showing $f_n(x)$ for $n = 10, 20, 50, 100, 200$ over the interval $x \in [0, 1]$ in one single figure. Add the target function $f(x) = 0$ to each plot. Add a meaningful title, labels for the y- and x-axis as well as a legend to the plots.
+
+For which type of convergence are you testing with this task? Does convergence for this concept hold?
+
+Hint: You may use par(mfrow=c(3,2)) to create the figure.
+
+```{r}
+# plot settings
+n <- c(10, 20, 50, 100, 200)
+x <- seq(from=0, to=1, length.out=5)
+result_df <- get_result_df(x=x, n=n)
+par(mfrow=c(3,2))
+for(n_ in n){
+  # only provide partial result_df to get one plot at a time for one n
+  # so only provide the respective row of the result_df
+  result_df_n_ <- result_df[as.character(n_), ]
+  main <- sprintf("Convergence for size n: %s", n_)
+  get_comparison_plot(result_df=result_df_n_, x=x, n=n_, col_vals=col_vals, main=main)
+  lines(x=x, y=f_x(x), col="red")
+  legend("topright",
+         title = "Size",
+         legend = c(n_, "f(x)"),
+         col = c(col_vals[1], "red"),
+         lty = c(1, 1),
+         lwd=c(1, 1)
+  )
+}
+par(mfrow=c(1,1))
+
+# Answer here:
+# 
+```
+
+Choose an $\epsilon > 0$, for instance, $\epsilon = 0.1$. Plot $|f_n(x) - f(x)|$ for $n = 1, 2, 5, 10, 20$ and show that there are always some values of $x$ in $[0, 1]$ such that $|f_n(x) - f(x)| > \epsilon$ to support your argument in (b).
+
+What do the plots show and what can we conclude from this observation?
+
+```{r}
+# plot settings
+epsilon = 0.1
+n <- c(1, 2, 5, 10, 20)
+result_df <- get_result_df(x=x, n=n)
+
+par(mfrow=c(3,2))
+for(n_ in n){
+  result_df_n_ <- result_df[as.character(n_), ]
+  # Take the absolute difference between function and target function
+  abs_diff <- abs(result_df_n_ - f_x(x))
+  
+  main <- sprintf("Convergence for size n: %s and epsilon: %s", n_, epsilon)
+  plot(x=x, y=abs_diff, col="blue", main=main,
+       type="l",
+       xlim=c(min(x), max(x)),
+       ylim=c(min(abs_diff), max(abs_diff)))
+  lines(x=x, y=f_x(x), col="red")
+  abline(a=epsilon, b=0, col="orange")
+  legend("topright",
+         title = "",
+         legend = c("Abs. Diff.", "f(x)", "e"),
+         col = c(col_vals[1], "red", "orange"),
+         lty = c(1, 1, 1),
+         lwd=c(1, 1, 1)
+  )
+}
+par(mfrow=c(1,1))
+#Answer here:
+#
+```
+
+### Task 2 \### (3 Points)
+
+Calculate Power for a permutation test
+
+For this problem, the following simple regression model is given $y_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + \varepsilon_i$, where $\quad i = 1, 2, \ldots, n$, $X_1 \sim \mathcal{U}(1,10)$, $X_2 \overset{\text{iid}}{\sim} \text{Bernoulli}(p)$, and $\varepsilon \sim \mathcal{N}(0,1)$. Further, you can assume that $y_i = 1 + 0.2 x_{1i} + 0.1 x_{2i} + \varepsilon_i$.
+
+Whenever using random numbers please use seed = 100.
+
+# a) Create Data
+
+Write two functions. The first should set up the model. The second should estimates the coefficient $\beta_1$ and its t-value. You may use the $lm()$ function for this step.
+
+```{r}
+# settings
+set_seed <- T # set seed or not
+seed <- 100 # if seed set 100 acc. to task
+n <- 100 # sample size
+p <- 0.5 # Binom dist
+beta_0 <- 1
+beta_1 <- 0.2
+beta_2 <- 0.1
+
+# ###################################function 1) model setup and data generation
+get_simulated_data <- function(set_seed, seed, n, p, beta_0, beta_1, beta_2){
+  if(set_seed==T){
+    set.seed(seed)  
+  }
+  x1 <- runif(n=n, min=1, max=10) # specify the data as given in the task
+  x2 <- rbinom(n=n, size=1, prob=p) # specify the data as given in the task
+  epsilon <- rnorm(n=n, mean=0, sd=1) # standard normal distributed error terms
+  # estimate the data with the given parameter values for the coefficients
+  y <- beta_0 + beta_1 * x1 + beta_2 * x2 + epsilon
+  model_data <- data.frame(X1=x1, X2=x2, Y=y)
+  return(model_data)
+}
+# Test the first function
+sim_data <- get_simulated_data(set_seed, seed, n, p, beta_0, beta_1, beta_2)
+print(sim_data)
+# ##################################################function 2) model estimation
+model_data <- sim_data
+estimate_coeff <- "X1"
+
+get_estimates <- function(model_data, estimate_coeff){
+  mod <- lm(model_data$Y ~ model_data$X1 + model_data$X2) # estimate via lm()
+  # extract the wanted coefficients and statistics
+  estimate <- summary.lm(mod)$coefficients[sprintf("model_data$%s", estimate_coeff), c("Estimate", "t value")]
+  return(estimate)
+}
+# Test the second function
+estimates <- get_estimates(model_data=model_data, estimate_coeff=estimate_coeff)
+print(estimates)
+#  Estimate   t value 
+# 0.1788579 5.2328356 
+
+```
+
+# b) Perform a permutation test
+
+Perform a permutation test for the effect of $X_1$ on $Y$. First, generate data with the function you just created. Then, randomly sample $Y$ 30 times and fit the model for each sampled dataset. For each sampled dataset, calculate the coefficient for $\beta_1$ and its t-value. Calculate the p-value as the proportion of times the absolute t-values from the sampled data are greater than or equal to the absolute t-value from the original data. Repeat these steps 100 times and calculate the share of rejections at the 5% level. Perform this process for different sample sizes, starting at 50 and increasing by 50 until reaching 500.
+
+```{r}
+# task settings
+sim_size <- 100
+permutation_size <- 30
+rejection_level <- 0.05
+n <- seq(from=50, to=500, by=50)
+# for later saving the results
+results_df <- data.frame(SizeSim = n, matrix(data=NA, nrow=length(n), ncol=sim_size))
+colnames(results_df) <- c("SizeSim", 1:sim_size)
+# save the single p-vals
+p_val_df <- data.frame(SizeSim = n, matrix(data=NA, nrow=length(n), ncol=sim_size))
+colnames(p_val_df) <- c("SizeSim", 1:sim_size)
+# perform the permutation test
+for(n_ in n){
+  # we hold the sample size n constant and iterate over the sim_size of 100
+  # where we randomly sample Y 30 times in each of the 100 runs
+  for(sim in 1:sim_size){
+    # loop through different sample sizes contained in the vector n
+    # and generate data
+    # set the seed to FALSE
+    set_seed <- F
+    seed <- 100
+    p <- 0.8
+    beta_0 <- 1
+    beta_1 <- 0.2
+    beta_2 <- 0.1
+    sim_data <- get_simulated_data(set_seed=set_seed, seed=seed, n=n_, p=p,
+                                   beta_0=beta_0, beta_1=beta_1, beta_2=beta_2)
+    # First estimate the original model
+    model_data <- sim_data
+    estimate_coeff <- "X1"
+    estimates_og <- get_estimates(model_data=model_data, estimate_coeff=estimate_coeff)
+    # then conduct the permutation/sampling of Y mixing up its theoretical correct order
+    # with which we estimated the original model above, we permute 30 times
+    # resulting in 30 estimated values we store accordingly in the following data.frame
+    estimates_df_n <- data.frame(Num_Permutation=1:permutation_size, Estimate=NA, t_val=NA)
+    for(i in 1:permutation_size){ # 30 times shuffling
+      sim_data$Y <- sample(sim_data$Y) # shuffle the Y values, leave Xs as is
+      model_data <- sim_data
+      estimates_n <- get_estimates(model_data=model_data, estimate_coeff=estimate_coeff)
+      # save the estimates
+      estimates_df_n[i, 2:dim(estimates_df_n)[2]] <- estimates_n
+    }
+    # Calculate the p value for the whole n_, from the 30 values we receive 2
+    num_true <- sum(abs(estimates_df_n$t_val) >= abs(estimates_og["t value"]))
+    # calculate the share out of the 30 values
+    p_val <- (num_true / permutation_size)
+    p_val_df[p_val_df$SizeSim == n_, sim+1] <- p_val
+    # Save values in the estimates df
+    # estimates_df[estimates_df$SizeSim == n_, 2:dim(estimates_df)[2]] <- c(num_true, p_val)
+    # compute whether we have to reject based on the p-value resulting
+    # out of the 30 permutations
+    # compare the p-value with the given rejection level
+    decision <- ifelse(p_val<rejection_level, "Reject", "NotReject")
+    # save the result in the master df
+    print(sprintf("Sample size: %s and simulation run: %s and decision: %s", n_, sim, decision))
+    results_df[results_df$SizeSim == n_, sim+1] <- decision
+  }
+}
+# Calculate the share of rejections
+num_reject <- length(which(results_df=="Reject"))
+tota_sims <- length(n) * sim_size
+sprintf("The H0 hypothesis is rejected: %s times out of a total of: %s simulations what equals a relative share of: %s percent", num_reject, tota_sims, round(num_reject/tota_sims)*100)
+
+```
+
+# c) Compare test results
+
+Repeat the steps from task b), but set $beta_1 = 0$ for the data generation. Plot the results for the different samples sizes in the same plot as the results for taks b) and compare. Interpret the plot.
+
+```{r}
+# iterate over the sample sizes and plot the p value results of simulations from
+# a) and b)
+for(i in 1:length(n)){
+  n_ <- n[i]
+  col_ <- col_vals[i]
+  if(n_ == n[1]){
+    plot(x=colnames(p_val_df),
+         y=p_val_df[p_val_df$SizeSim==n_, ],
+         type="l",
+         ylim=c(0, max(p_val_df[, 2:dim(p_val_df)[2]])),
+         col=col_,
+         xlab=sprintf("Number of permutations that were carried out %s times each run", sim_size),
+         ylab="Estimated P-vals",
+         main=sprintf("Permutation Test for sim_size: %s, permutation_size: %s, rejection_level: %s, betas: %s",
+                      sim_size, permutation_size, rejection_level, beta_0),
+         cex.main=0.8
+           )
+  }else{
+    lines(x=colnames(p_val_df), y=p_val_df[p_val_df$SizeSim==n_, ],
+          col=col_)
+  }
+}
+legend("topright",
+       title = "Sim Size",
+       legend = n,
+       col = col_vals,
+       lty = rep(1, length(col_vals)),
+       lwd=rep(1, length(col_vals))
+)
+
+```
