@@ -1,0 +1,19 @@
+# Streamlit configuration file to customize app behavior and appearance
+
+[server]
+# Configure server settings
+headless = true            # Run Streamlit in headless mode (for deployment)
+port = 8501                # Set the port for your app (default is 8501)
+enableCORS = false         # Disable CORS for local development (useful for API calls)
+
+[theme]
+# Customize the app's theme (UI)
+primaryColor = "#F63366"   # Define the primary color for the app
+backgroundColor = "#FFFFFF"  # Background color of the app
+secondaryBackgroundColor = "#F0F2F6"  # Color for secondary backgrounds (e.g., sidebar)
+textColor = "#000000"      # Color of the text
+font = "sans serif"        # Font used in the app
+
+[global]
+# Additional global settings
+maxUploadSize = 100        # Maximum file upload size in MB (default is 200MB)

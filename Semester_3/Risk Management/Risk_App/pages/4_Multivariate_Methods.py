@@ -1,4 +1,4 @@
-import streamlit as st
+from util.load_packages import st
 
 st.write("---")
 
