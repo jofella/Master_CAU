@@ -42,7 +42,6 @@ N   =    size(y, 1);     % Sample size
 T   =    N;
 T2  =    sum(diag(d));   % Number of recession periods, diag(d) is re-transorming Matrix into vector
 T1  =    T-T2;           % Number of calm periods
-I_t =    eye(T);        % Identity Matrix TxT
 
 
 % ===| OLS estimates:
@@ -77,29 +76,29 @@ ssq2_1 = ((y-X*beta_initial')'*d*(y-X*beta_initial')+nu2_0*ssq2_0)/nu2_1;
 h2(1) = gamrnd(nu2_1/2, 2/(nu2_1*ssq2_1));
 
 % First draw beta(1)|h1(1), h1(2):
-H         = h1*(I_t-d)+h2*d;
-V1        = inv(kappa0 + H*XX);     % Posterior variance for beta|h
-V1        = (V1 + V1')/2;           % Enforce symmetry of V1 - either close to 0 or too large
-beta1     = V1*(kappa0*beta0 + h(1)*Xy);   % Posterior mean for beta|h
-beta(1,:) = mvnrnd(beta1,V1,1);     % Draw from the conditional Normal for beta|h
+H         = diag(h1(1) * (1 - diag(d)) + h2(1) * diag(d));
+V1        = inv(V_OLS + X'*H*X);        % Posterior variance for beta|h1,h2, inverse cause V^-1
+beta1     = V1*(X'*H*y);                % Posterior mean for beta|h1,h2 - "*"V1 cause its a matrix so mult by inverse
+beta(1,:) = mvnrnd(beta1',V1,1);        % Draw from the conditional Normal for beta|h
+
 
 % Gibbs sampler loop:
 for i=2:S0+S1
     % Draw h1(i)|beta(i-1):
     ssq1_1 = ((y-X*beta(i-1,:)')'*(y-X*beta(i-1,:)')+nu0*ssq0)/nu1;
-    h1(i) = gamrnd(nu1/2, 2/(nu1*ssq1));
+    h1(i) = gamrnd(nu1/2, 2/(nu1*ssq1_1));
     
     % Draw h2(i)|beta(i-1):
     ssq2_1 = ((y-X*beta(i-1,:)')'*(y-X*beta(i-1,:)')+nu0*ssq0)/nu1;
-    h2(i) = gamrnd(nu1/2, 2/(nu1*ssq1));
+    h2(i) = gamrnd(nu1/2, 2/(nu1*ssq2_1));
     
-    % Draw beta(i)|h(i)
-    V1        = inv(kappa0 + X'*H*X);
+    % Draw beta(i)|h1(i),h2(i)
+    H         = diag(h1(i) * (1 - diag(d)) + h2(i) * diag(d));
+    V1        = inv(V_OLS + X'*H*X);
     V1        = (V1 + V1')/2;
-    beta1     = V1*(kappa0*beta0 + h(i)*Xy); 
+    beta1     = V1*(X'*H*y); 
     beta(i,:) = mvnrnd(beta1, V1, 1);   
 end
-
 
 % ===| Store posterior parameters: 
 % Recall: ...
