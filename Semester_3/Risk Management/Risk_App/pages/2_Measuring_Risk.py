@@ -88,19 +88,25 @@ X_n = np.diff(Z_n, axis=0)  # Compute log-return changes
 
 weighted_port = alpha_weights * data_dax_comp
 
+
 # Function loss operator
 def l(n, x):
     return -np.dot(weighted_port[n,:], np.exp(x[n,:])-1)
 
-# Compute Losses Over Time
+# Function delta loss operator
+def l_delta(n, x):
+    return -np.dot(weighted_port[n,:], x[n,:])
+
+# Compute Losses
 losses = np.array([l(n, X_n) for n in range(len(X_n))])
+delta_losses = np.array([l_delta(n, X_n) for n in range(len(X_n))])
 
-# Convert to DataFrame
+# Compute Portfolio Value (V_n)
 V_n = np.dot(np.exp(Z_n), alpha_weights)
+
+# Convert to DataFrames
 loss_df = pd.DataFrame({"Time": np.arange(len(losses)), "Losses": losses})
-
-
-
+delta_loss_df = pd.DataFrame({"Time": np.arange(len(delta_losses)), "Losses": delta_losses})
 
 
 
@@ -134,20 +140,63 @@ fig = px.line(loss_df, x="Time", y="Losses",
               labels={"Losses": "Loss", "Time": "Time (Days)"},
               line_shape="linear")
 
-# ** Display in Streamlit **
 st.plotly_chart(fig)
-
-
 
 
 st.write("---")
 
+st.markdown("""
+### 1.3. Linearized Loss Operator  
+
+One major challenge with the **loss operator** is that it is generally **nonlinear** due to the function \( f_n \).  
+Nonlinearities can make risk modeling more complex, requiring advanced numerical methods for estimation.  
+
+To simplify computations and make risk estimation more tractable, we apply a **first-order Taylor expansion** to approximate losses **linearly**.  
+This approximation allows us to efficiently analyze **small risk factor changes** while maintaining accuracy.
+
+""", unsafe_allow_html=True)
+
+st.write("---")
+
+
+# ** Joint Losses Chart **
+fig = go.Figure()
+
+# Normal Losses
+fig.add_trace(go.Scatter(
+    x=loss_df["Time"], 
+    y=loss_df["Losses"], 
+    mode="lines", 
+    name="Nonlinear Losses", 
+    line=dict(color="light blue")
+))
+
+# Linearized Losses
+fig.add_trace(go.Scatter(
+    x=delta_loss_df["Time"], 
+    y=delta_loss_df["Losses"], 
+    mode="lines", 
+    name="Linearized Losses", 
+    line=dict(color="crimson", dash="dash")
+))
+
+fig.update_layout(
+    title="Comparison of Nonlinear and Linearized Portfolio Losses",
+    xaxis_title="Time (Days)",
+    yaxis_title="Loss",
+    legend=dict(x=0, y=1),
+    xaxis=dict(showgrid=True)
+)
+
+st.plotly_chart(fig)
+
+st.write("---")
+
+
+# ** Different Risk Measures **
+st.header("2. Risk Measures")
 
 st.markdown("""
-### 1.3. Linearlized Loss operator
-
-hi
-
-
+Now we have established a method to quantify our risk: Losses. As a next step we want to 
 
 """, unsafe_allow_html=True)
