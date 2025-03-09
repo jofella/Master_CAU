@@ -7,3 +7,11 @@ from util.load_packages import st
 
 
 ## Body --
+
+
+
+st.markdown("""
+            - Historical
+            - Variance
+            - ...
+            """)
