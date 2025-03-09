@@ -10,6 +10,8 @@ st.title("Main Page")  # Title for the page
 
 # Main content
 st.write("""
+         - The general idea of this dashboard is to provide an interactive learning ressource. It combines both, 
+         my theoretical/practical understanding about Risk Management and skillset in streamlit.
 Expenses as material breeding insisted building to in. Continual so distrusts pronounce by 
 unwilling listening. Thing do taste on we manor. Him had wound use found hoped. Of distrusts 
 immediate enjoyment curiosity do. Marianne numerous saw thoughts the humoured.
