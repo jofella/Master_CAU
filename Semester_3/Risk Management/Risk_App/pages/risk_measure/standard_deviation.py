@@ -35,8 +35,6 @@ For more robust risk assessment, **Value at Risk (VaR) and Expected Shortfall (E
 st.write("---")
 
 
-
-
 # **1.Load data **
 data = st.session_state.data
 

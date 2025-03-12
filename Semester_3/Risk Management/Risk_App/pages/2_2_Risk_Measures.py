@@ -17,6 +17,7 @@ if "data_dax_comp" not in st.session_state:
 
 
 
+# ** 2.Select desired risk measure **
 method_section = st.radio("Choose a risk measure:", ["Standard Deviation", "Value at Risk", "Expected Shortfall"])
 
 # Dynamically import and execute the content based on selection
