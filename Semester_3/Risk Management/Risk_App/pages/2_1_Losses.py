@@ -1,6 +1,6 @@
 from util.load_packages import st, np, pd, os, px, go, stats
 
-st.title("📏 Measuring Risk")
+st.title("📉 Losses")
 st.markdown("""
 Why do we need risk management? Financial institutions like banks are subject to losses. Extreme
 large losses may lead to bancruptcy and may also threaten third parties. In order to prevent this
@@ -17,8 +17,14 @@ Following passages will introduce the basics for capturing <b>market risk</b>.
 st.write("---")
 
 # ** Load DAX Companies Data **
+@st.cache_data
+def load_dax_data(path):
+    """Load DAX stock data from CSV."""
+    return np.genfromtxt(path, usecols=(1,2,3,4,5), delimiter=",", skip_header=1)
+
 path = r'C:\Users\josef\Documents\GitHub\Master_CAU\Semester_3\Risk Management\Risk_App\data\DAX_companies.csv'
-data_dax_comp = np.genfromtxt(path, usecols=(1,2,3,4,5), delimiter=",", skip_header=1)
+data_dax_comp = load_dax_data(path)
+
 
 
 # ** Loss operator **
@@ -80,29 +86,46 @@ alpha_weights = np.array([w1, w2, w3, w4, w5])
 
 
 # ** Computation **
-# Compute Risk Factors (Z_n) 
-Z_n = np.log(data_dax_comp)
 
-# Compute Risk Factor Changes (X_n)
-X_n = np.diff(Z_n, axis=0)  # Compute log-return changes
+# Risk factors
+@st.cache_data
+def compute_risk_factors(data):
+    """Compute log stock prices (Z_n) and log-returns (X_n)."""
+    Z_n = np.log(data)
+    X_n = np.diff(Z_n, axis=0)  # Compute log-return changes
+    return Z_n, X_n
 
+Z_n, X_n = compute_risk_factors(data_dax_comp)
+
+# Weights
 weighted_port = alpha_weights * data_dax_comp
-
-
-# Function loss operator
-def l(n, x):
-    return -np.dot(weighted_port[n,:], np.exp(x[n,:])-1)
-
-# Function delta loss operator
-def l_delta(n, x):
-    return -np.dot(weighted_port[n,:], x[n,:])
-
-# Compute Losses
-losses = np.array([l(n, X_n) for n in range(len(X_n))])
-delta_losses = np.array([l_delta(n, X_n) for n in range(len(X_n))])
 
 # Compute Portfolio Value (V_n)
 V_n = np.dot(np.exp(Z_n), alpha_weights)
+
+# Losses
+@st.cache_data
+def compute_nonlinear_losses(X_n, alpha_weights, data):
+    """Compute the nonlinear portfolio losses."""
+    weighted_port = alpha_weights * data
+    
+    def l(n, x):
+        return -np.dot(weighted_port[n, :], np.exp(x[n, :]) - 1)
+    
+    return np.array([l(n, X_n) for n in range(len(X_n))])
+
+@st.cache_data
+def compute_linearized_losses(X_n, alpha_weights, data):
+    """Compute the linearized (first-order Taylor) portfolio losses."""
+    weighted_port = alpha_weights * data
+    
+    def l_delta(n, x):
+        return -np.dot(weighted_port[n, :], x[n, :])
+    
+    return np.array([l_delta(n, X_n) for n in range(len(X_n))])
+
+losses = compute_nonlinear_losses(X_n, alpha_weights, data_dax_comp)
+delta_losses = compute_linearized_losses(X_n, alpha_weights, data_dax_comp)
 
 # Convert to DataFrames
 loss_df = pd.DataFrame({"Time": np.arange(len(losses)), "Losses": losses})
@@ -156,47 +179,45 @@ This approximation allows us to efficiently analyze **small risk factor changes*
 
 """, unsafe_allow_html=True)
 
-st.write("---")
 
 
-# ** Joint Losses Chart **
-fig = go.Figure()
+@st.cache_data
+def plot_losses_chart(loss_df, delta_loss_df):
+    """Generates a Plotly figure comparing nonlinear & linearized losses."""
+    fig = go.Figure()
 
-# Normal Losses
-fig.add_trace(go.Scatter(
-    x=loss_df["Time"], 
-    y=loss_df["Losses"], 
-    mode="lines", 
-    name="Nonlinear Losses", 
-    line=dict(color="light blue")
-))
+    # Nonlinear Losses
+    fig.add_trace(go.Scatter(
+        x=loss_df["Time"], 
+        y=loss_df["Losses"], 
+        mode="lines", 
+        name="Nonlinear Losses", 
+        line=dict(color="lightblue")
+    ))
 
-# Linearized Losses
-fig.add_trace(go.Scatter(
-    x=delta_loss_df["Time"], 
-    y=delta_loss_df["Losses"], 
-    mode="lines", 
-    name="Linearized Losses", 
-    line=dict(color="crimson", dash="dash")
-))
+    # Linearized Losses
+    fig.add_trace(go.Scatter(
+        x=delta_loss_df["Time"], 
+        y=delta_loss_df["Losses"], 
+        mode="lines", 
+        name="Linearized Losses", 
+        line=dict(color="crimson", dash="dash")
+    ))
 
-fig.update_layout(
-    title="Comparison of Nonlinear and Linearized Portfolio Losses",
-    xaxis_title="Time (Days)",
-    yaxis_title="Loss",
-    legend=dict(x=0, y=1),
-    xaxis=dict(showgrid=True)
-)
+    fig.update_layout(
+        title="Comparison of Nonlinear and Linearized Portfolio Losses",
+        xaxis_title="Time (Days)",
+        yaxis_title="Loss",
+        legend=dict(x=0, y=1),
+        xaxis=dict(showgrid=True),
+        yaxis=dict(showgrid=True)
+    )
 
+    return fig
+
+fig = plot_losses_chart(loss_df, delta_loss_df)
 st.plotly_chart(fig)
 
+
 st.write("---")
 
-
-# ** Different Risk Measures **
-st.header("2. Risk Measures")
-
-st.markdown("""
-Now we have established a method to quantify our risk: Losses. As a next step we want to 
-
-""", unsafe_allow_html=True)

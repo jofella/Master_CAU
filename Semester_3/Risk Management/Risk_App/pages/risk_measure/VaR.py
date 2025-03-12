@@ -1,12 +1,15 @@
-import streamlit as st
-import numpy as np
-import matplotlib.pyplot as plt
+from util.load_packages import st, np, pd, os, px, go, stats
 
-# Poisson Distribution section content
+
+st.markdown("""
+### 2.2. Value at Risk
+
+
+""", unsafe_allow_html=True)
+
+
+
 st.write("""
 - first the function
 - secondly backtesting the VaR
 """)
-
-# Example: Plot a Poisson distribution
-
