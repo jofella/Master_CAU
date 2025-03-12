@@ -1,5 +1,5 @@
 from util.load_packages import st, np, pd, os, px, go, stats
-
+from util.data_utils import load_single_stock_data
 
 st.title("📏 Measuring Risk")
 
@@ -8,10 +8,12 @@ We have now established a method to quantify our risk: **Losses**.
 The next step is to measure risk and ultimately determine the **required buffer capital**.  
 """, unsafe_allow_html=True)
 
-
 # ** 1.Load data (once and reference on it) **
-if "data" not in st.session_state:
-    st.session_state.data = pd.read_csv(r'C:\Users\josef\Documents\GitHub\Master_CAU\Semester_3\Risk Management\Risk_App\data\DAX_companies.csv')  # Replace with actual path
+path = r'C:\Users\josef\Documents\GitHub\Master_CAU\Semester_3\Risk Management\Risk_App\data\DAX_companies.csv'
+
+# Load data and store it in session state
+if "data_dax_comp" not in st.session_state:
+    st.session_state.data = load_single_stock_data(path)
 
 
 

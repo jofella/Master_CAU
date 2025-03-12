@@ -38,43 +38,79 @@ st.write("---")
 
 
 # **1.Load data **
-data_dax_comp = st.session_state.data
-
-st.write(data_dax_comp.describe())  # Example usage
-
+data = st.session_state.data
 
 
 # ** 2.Computation of sd**
-
-c = 0.4
-
 def rho(n, c, mu, sigma):
     cond_mean = n * (1 - np.exp(mu+ sigma**2 / 2))
     cond_var = n**2 * (np.exp(sigma**2) - 1) * np.exp(2*mu + sigma**2)
     return cond_mean + c * np.sqrt(cond_var)
+c = 1.64
 
 
-# Log returns
-returns_dax = get_log_returns(data_dax_comp)
+st.write(f"Pre-defined risk-appetite is: {c}")
+
+# lr
+returns_dax = get_log_returns(data)
+
+# Losses
+losses = -np.diff(data)
 
 # Get parameters
 mu = np.mean(returns_dax)
 sigma = np.std(returns_dax)
 
-st.write(mu, sigma)
-
 # compute standard deviation
-# sd = np.empty(len(data))
-# c = 1.7
+sd = np.empty(len(data))
 
-# for i in range(len(data)):
-#     sd[i] = rho(data[i], c, mu, sigma)
-
+for i in range(len(data)):
+    sd[i] = rho(data[i], c, mu, sigma)
 
 
-
-# Visualization
-
+# Transform to df
+loss_df = pd.DataFrame({"Index": range(len(losses)), "Losses": losses})
+sd_df = pd.DataFrame({"Index": range(len(data)), "sd": sd})
 
 
 
+# ** 2.Visualization **
+@st.cache_data
+def plot_sd(loss_df, sd_df):
+    """Generates a Plotly figure comparing losses and sd."""
+    fig = go.Figure()
+
+    # Losses
+    fig.add_trace(go.Scatter(
+        x=loss_df.index, 
+        y=loss_df["Losses"], 
+        mode="lines", 
+        name="Losses", 
+        line=dict(color="lightblue")
+    ))
+
+    # sd
+    fig.add_trace(go.Scatter(
+        x=sd_df.index, 
+        y=sd_df["sd"], 
+        mode="lines", 
+        name="Standard Deviation", 
+        line=dict(color="crimson")
+    ))
+
+    fig.update_layout(
+        # title="Standard Deviation",
+        xaxis_title="Time (Days)",
+        yaxis_title="Loss",
+        legend=dict(x=0, y=1),
+        xaxis=dict(showgrid=True),
+        yaxis=dict(showgrid=True)
+    )
+
+    return fig
+
+fig = plot_sd(loss_df, sd_df)
+st.plotly_chart(fig)
+
+
+st.write("---")
